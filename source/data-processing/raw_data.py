@@ -28,7 +28,7 @@ KEY = '001001.txt' # replace with your object key
 
 s3 = boto3.resource('s3')
 resources = s3.get_available_subresources()
-print(f"Resources: {resources}\n")
+print(f"Resources: {resources}")
 try:
     s3.Bucket(BUCKET_NAME).download_file(KEY, 'my_local_image.jpg')
 except botocore.exceptions.ClientError as e:
