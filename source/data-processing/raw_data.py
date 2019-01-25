@@ -36,7 +36,9 @@ def split_file_name(file_name):
 BUCKET_NAME = 'u-of-buffalo' 
 FILE_NAME = "001001.txt"
 
-conf = SparkConf().setAppName("MVP_getS3_conf").setMaster("local[*]")
+# conf = SparkConf().setAppName("MVP_getS3_conf").setMaster("local[*]") ec2-54-214-60-202.us-west-2.compute.amazonaws.com
+conf = SparkConf().setAppName("MVP_getS3_conf").setMaster("spark://ec2-54-214-60-202.us-west-2.compute.amazonaws.com:7077")
+
 spark = SparkSession.builder.appName("MVP_getS3_spark").getOrCreate()
 # sc = SparkContext(conf=conf)
 
