@@ -72,7 +72,7 @@ properties = {
             'password': 'KRILLIN',
             'driver': 'org.postgresql.Driver'
         }
-mode = 'append'
+mode = 'overwrite'
 url = "jdbc:postgresql://34.222.121.241:5432/keystroke_data"
 # now write to postgresql
 try:
