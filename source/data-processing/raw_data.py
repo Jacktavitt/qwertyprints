@@ -7,55 +7,76 @@
 # -------------------------------------
 # |   Session_ID
 # -------------------------------------
-# |   Sequence_Num
+# |   Key_pair
 # -------------------------------------
-# |   Key_ID
+# |   Digraph_time
 # -------------------------------------
-# |   Duration
+# |   Task_id
 # -------------------------------------
-
-
-def UofBuffaloData(directory):
-    pass
-
 
 import argparse
 import os
+import csv
 from pyspark import SparkContext, SparkConf
 from pyspark.sql import SQLContext, SparkSession, Row, Column
 from pyspark.sql.types import *
 
+def split_file_name(file_name):
+    user_id = int(file_name[:3])
+    session_nbr = int(file_name[3])
+    task_id = int(file_name[5])
+
+    return user_id, session_nbr, task_id
+
 os.environ["PYSPARK_PYTHON"]="/usr/bin/python3"
 os.environ["PYSPARK_DRIVER_PYTHON"]="/usr/bin/python3"
+os.environ["PYTHONPATH"]="{}:/usr/local/spark/python:/usr/local/spark/python/lib/py4j-0.10.7-src.zip".format(os.environ["PYTHONPATH"])
 
 BUCKET_NAME = 'u-of-buffalo' 
+FILE_NAME = "001001.txt"
 
-conf = SparkConf().setAppName("billy").setMaster("local[*]")
-spark = SparkSession.builder.appName("frank").getOrCreate()
-
-#schema didnt work for some reason... BECUASE I DID IT WRONG!
-# or did i? All values are 'None' when schema specified.
-# schema = StructType([
-#     StructField("key_id", StringType(), True),
-#     StructField("press_action", StringType(), True),
-#     StructField("action_time", IntegerType(), True)])
-
-# schema = StructType([StructField("key_id", StringType(), False),StructField("press_action", StringType(), False),StructField("action_time", IntegerType(), False), StructField("user_id", IntegerType(), False)])
-
-# df = spark.read.option("delimiter", " ").schema(schema).csv("s3a://u-of-buffalo/001001.txt")
-df = spark.read.option("delimiter", " ").csv("s3a://u-of-buffalo/001001.txt")
-# not ideal, but a hacky fix.
-df2 = df.withColumnRenamed('_c0','key_id').withColumnRenamed('_c1', 'key_action').withColumnRenamed('_c2','action_time')
-
-# go through and add columns
-
+conf = SparkConf().setAppName("MVP_getS3_conf").setMaster("local[*]")
+spark = SparkSession.builder.appName("MVP_getS3_spark").getOrCreate()
 sc = SparkContext(conf=conf)
-tf = sc.textFile("s3a://u-of-buffalo/001001.txt")
 
-# conf = SparkConf().setAppName("load_data").setMaster("local")
-# sc = SparkContext(conf=conf)
-# sqlContx = SQLContext(sc)
+schema = StructType([
+        StructField("user_id", IntegerType(), False),
+        StructField("session_id", IntegerType()),
+        StructField("key_pair", StringType()),
+        StructField("digraph_time", IntegerType()),
+        StructField("task_id", IntegerType())
+    ])
 
-# uob_bucket = s3.Bucket(BUCKET_NAME)
-# files_list = [f.key for f in uob_bucket.objects.all()]
+# rdd = sc.textFile("s3a://{}/{}.txt".format(BUCKET_NAME, FILE_NAME))
+df = spark.read.option("delimiter", " ")\
+        .csv("s3a://{}/{}.txt"\
+        .format(BUCKET_NAME, FILE_NAME))
+# get info from file name
+user_id, _, _ = split_file_name(FILE_NAME)
+
+# not ideal, but a hacky fix.
+df_named = df.withColumnRenamed('_c0','key_id')\
+    .withColumnRenamed('_c1', 'key_action')\
+    .withColumnRenamed('_c2','action_time')\
+    .withColumn("user_id", user_id)
+
+pgdb_dns = "ec2-34-222-121-241.us-west-2.compute.amazonaws.com"
+pgdb_ip = "34.222.121.241"
+pgdb_port = 5432
+dbname = "keystroke_data"
+# now write to postgresql
+df_named.write.jdbc(
+    'jdbc:posgresql://{}:{}/{}'.format(pgdb_ip, pgdb_port, dbname),
+    'mvp_tester',
+    mode='append',
+    properties={
+        'user': 'other_user',
+        'password': 'KRILLIN'
+    }
+)
+
+
+
+
+
 

@@ -7,11 +7,16 @@
 
 (Tentative)
 
-S3 -> Spark -> (a database) -> Airflow -> (a frontend)
+S3 -> Spark -> PostgreSQL -> ML Algorithm (Spark or Container) -> Document KV Storage (MongoDB)
+Frontend (User and keystroke info) -> Document KV Storage -> Evaluate Model with ML Algo
 
 ### Datatsets
 
-A few, including:
+A few, firstly:
+
+University of Buffalo Keystroke Identification data
+
+some others, including:
 
 Touch Screen Phone based keystroke dynamics dataset: http://www.coolestech.com/rhu-keystroke/
 
@@ -38,11 +43,11 @@ The automation of this process will pose a challenge both for scheduling and the
 
 ### Business Value
 
-Being able to have an automated or semi-automated system for serving machine learning models would be attractive to any company that offers the power of up-to-date ML models as their service, decreasing the hands-on man-hours required to maintain the system, and allow for other innovation.
+The percentage of U.S. adults with a social media account rose from 10% in 2005 to 84% in 2016. Nearly 2 in 3 report being hacked. 11% of those who have been hacked suffered financial loss, or know someone who has. My project involved a PM and DS fellow to develop an app plugin that allows for continuous user authentication. This project trains a machine learning algorithm on customer data, and maintains the trained models with minimal human interference.
 
 ### MVP
 
-An INGESTION system that brings in the data STORED in (S3) and sends this data to be TRANSFORMED in (Spark) to match our custom SCHEMA. This data is then sent to TRAIN a HOSTED ML model, which is STORED in a dynamic system. Small amount of user data (individual user) is evaluated by the trained model, which returns a result (IS user or is NOT user)
+An INGESTION system that brings in the data STORED in (S3) and sends this data to be TRANSFORMED in (Spark) to match our custom SCHEMA, and STORED in a PostgreSQL RELATIONAL DATABASE. This data is then sent to TRAIN a HOSTED ML model, which is STORED in a DOCUMENT-STORAGE db, such as MongoDB. Small amount of user data (individual user) is evaluated by the trained model, which returns a result (IS user or is NOT user)
 
 ### Stretch Goals
 
