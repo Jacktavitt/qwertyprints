@@ -17,6 +17,7 @@
 import argparse
 import os
 import csv
+from pyspark.sql.functions import lit
 from pyspark import SparkContext, SparkConf
 from pyspark.sql import SQLContext, SparkSession, Row, Column
 from pyspark.sql.types import *
@@ -56,7 +57,7 @@ user_id, _, _ = split_file_name(FILE_NAME)
 df_named = df.withColumnRenamed('_c0','key_id')\
     .withColumnRenamed('_c1', 'key_action')\
     .withColumnRenamed('_c2','action_time')\
-    .withColumn("user_id", user_id)
+    .withColumn("user_id", lit(user_id))
 
 pgdb_dns = "ec2-34-222-121-241.us-west-2.compute.amazonaws.com"
 pgdb_ip = "34.222.121.241"
