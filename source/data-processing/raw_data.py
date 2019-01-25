@@ -30,7 +30,9 @@ def split_file_name(file_name):
 
 os.environ["PYSPARK_PYTHON"]="/usr/bin/python3"
 os.environ["PYSPARK_DRIVER_PYTHON"]="/usr/bin/python3"
-os.environ["PYTHONPATH"]="{}:/usr/local/spark/python:/usr/local/spark/python/lib/py4j-0.10.7-src.zip".format(os.environ["PYTHONPATH"])
+os.environ["PYTHONPATH"]="/usr/local/spark/python:/usr/local/spark/python/lib/py4j-0.10.7-src.zip")
+
+# os.environ["PYTHONPATH"]="{}:/usr/local/spark/python:/usr/local/spark/python/lib/py4j-0.10.7-src.zip".format(os.environ["PYTHONPATH"])
 
 BUCKET_NAME = 'u-of-buffalo' 
 FILE_NAME = "001001.txt"
@@ -65,16 +67,30 @@ pgdb_ip = "34.222.121.241"
 pgdb_port = 5432
 dbname = "keystroke_data"
 # now write to postgresql
-df_named.write.jdbc(
-    'jdbc:posgresql://{}:{}/{}'.format(pgdb_ip, pgdb_port, dbname),
-    'mvp_tester',
-    mode='append',
-    properties={
-        'user': 'other_user',
-        'password': 'KRILLIN'
-    }
-)
-
+try:
+    df_named.write.jdbc(
+        'jdbc:posgresql://{}:{}/{}'.format(pgdb_ip, pgdb_port, dbname),
+        'mvp_tester',
+        mode='append',
+        properties={
+            'user': 'other_user',
+            'password': 'KRILLIN'
+        }
+    )
+except Exception as e:
+    print('used ip ', e)
+    try:
+        df_named.write.jdbc(
+            'jdbc:posgresql://{}:{}/{}'.format(pgdb_dns, pgdb_port, dbname),
+            'mvp_tester',
+            mode='append',
+            properties={
+                'user': 'other_user',
+                'password': 'KRILLIN'
+            }
+        )
+    except Exception as e:
+        print('used dns ', e)
 
 
 
