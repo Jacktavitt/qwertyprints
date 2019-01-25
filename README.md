@@ -35,6 +35,7 @@ these are currently all in different schema layouts.
 One is the challenge to design a custom data model that we will use for the Machine Learning algorithm. I will need to transform the source data sets to comply with the shape of our QWERTYprint schema. The various data sources must all either 
     a) contain the data we need or 
     b) have data that can be expanded into the necessary elements (interperet duration of keystroke from start time and end time, etc.)
+I am currently using a vertical layout but am considering the possible advantages of making it wider (a column for each digraph instead of a row for each keypress)
 
 The other challenge is to host a large number of ML trained models (most likely one per user) and to automate a system of retraining these models based on new/updated data. These models have a TRAIN stage and a TEST stage. TRAIN will take place upon initial batch processing of new data, and TEST will happen when either
     a) a user is logged in and typing. A MICROBATCH will be sent to the model to authenticate the identity of the user
