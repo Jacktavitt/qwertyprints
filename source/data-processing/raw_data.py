@@ -48,8 +48,7 @@ schema = StructType([
     ])
 
 # rdd = sc.textFile("s3a://{}/{}.txt".format(BUCKET_NAME, FILE_NAME))
-df = spark.read.option("delimiter", " ")\
-        .csv("s3a://{}/{}.format(BUCKET_NAME, FILE_NAME))
+df = spark.read.option("delimiter", " ").csv("s3a://{}/{}".format(BUCKET_NAME, FILE_NAME))
 # get info from file name
 user_id, _, _ = split_file_name(FILE_NAME)
 
