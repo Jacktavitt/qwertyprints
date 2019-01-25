@@ -40,13 +40,13 @@ conf = SparkConf().setAppName("MVP_getS3_conf").setMaster("local[*]")
 spark = SparkSession.builder.appName("MVP_getS3_spark").getOrCreate()
 # sc = SparkContext(conf=conf)
 
-schema = StructType([
-        StructField("user_id", IntegerType(), False),
-        StructField("session_id", IntegerType()),
-        StructField("key_pair", StringType()),
-        StructField("digraph_time", IntegerType()),
-        StructField("task_id", IntegerType())
-    ])
+# schema = StructType([
+#         StructField("user_id", IntegerType(), False),
+#         StructField("session_id", IntegerType()),
+#         StructField("key_pair", StringType()),
+#         StructField("digraph_time", IntegerType()),
+#         StructField("task_id", IntegerType())
+#     ])
 
 # rdd = sc.textFile("s3a://{}/{}.txt".format(BUCKET_NAME, FILE_NAME))
 df = spark.read.option("delimiter", " ").csv("s3a://{}/{}".format(BUCKET_NAME, FILE_NAME))
@@ -54,44 +54,33 @@ df = spark.read.option("delimiter", " ").csv("s3a://{}/{}".format(BUCKET_NAME, F
 user_id, _, _ = split_file_name(FILE_NAME)
 
 # not ideal, but a hacky fix.
-df_named = df.withColumnRenamed('_c0','key_id')\
+df_named = df.withColumnRenamed('_c0','key_name')\
     .withColumnRenamed('_c1', 'key_action')\
     .withColumnRenamed('_c2','action_time')\
     .withColumn("user_id", lit(user_id))
 
-pgdb_dns = "ec2-34-222-121-241.us-west-2.compute.amazonaws.com"
-pgdb_ip = "34.222.121.241"
-pgdb_port = 5432
-dbname = "keystroke_data"
-# now write to postgresql
-try:
-    # df_named.write.option('driver', 'org.postgresql.Driver').jdbc(
-    df_named.write.jdbc(
-        'jdbc:posgresql://{}:{}/{}'.format(pgdb_ip, pgdb_port, dbname),
-        'mvp_tester',
-        mode='append',
-        properties={
+df_typed = df_named.withColumn("key_name", df_named["key_name"].cast(StringType())) \
+        .withColumn("action_time", df_named["action_time"].cast(IntegerType())) \
+        .withColumn("user_id", df_named["user_id"].cast(IntegerType()))
+
+# pgdb_dns = "ec2-34-222-121-241.us-west-2.compute.amazonaws.com"
+# pgdb_ip = "34.222.121.241"
+# pgdb_port = 5432
+# dbname = "keystroke_data"
+properties = {
             'user': 'other_user',
             'password': 'KRILLIN',
             'driver': 'org.postgresql.Driver'
         }
-    )
+mode = 'append'
+url = "jdbc:postgresql://34.222.121.241:5432/keystroke_data"
+# now write to postgresql
+try:
+    # df_named.write.option('driver', 'org.postgresql.Driver').jdbc(
+    df_typed.write.jdbc(url, 'mvp_dumb', mode=mode, properties=properties)
 except Exception as e:
-    print('used ip ', e)
-    try:
-        # df_named.write.option('driver', 'org.postgresql.Driver').jdbc(
-        df_named.write.jdbc(
-            'jdbc:posgresql://{}:{}/{}'.format(pgdb_dns, pgdb_port, dbname),
-            'mvp_tester',
-            mode='append',
-            properties={
-                'user': 'other_user',
-                'password': 'KRILLIN',
-                'driver': 'org.postgresql.Driver'
-            }
-        )
-    except Exception as e:
-        print('used dns ', e)
+    print( e)
+
 
 
 
