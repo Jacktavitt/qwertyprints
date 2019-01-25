@@ -65,25 +65,29 @@ pgdb_port = 5432
 dbname = "keystroke_data"
 # now write to postgresql
 try:
-    df_named.write.option('driver', 'org.postgresql.Driver').jdbc(
+    # df_named.write.option('driver', 'org.postgresql.Driver').jdbc(
+    df_named.write.jdbc(
         'jdbc:posgresql://{}:{}/{}'.format(pgdb_ip, pgdb_port, dbname),
         'mvp_tester',
         mode='append',
         properties={
             'user': 'other_user',
-            'password': 'KRILLIN'
+            'password': 'KRILLIN',
+            'driver': 'org.postgresql.Driver'
         }
     )
 except Exception as e:
     print('used ip ', e)
     try:
-        df_named.write.option('driver', 'org.postgresql.Driver').jdbc(
+        # df_named.write.option('driver', 'org.postgresql.Driver').jdbc(
+        df_named.write.jdbc(
             'jdbc:posgresql://{}:{}/{}'.format(pgdb_dns, pgdb_port, dbname),
             'mvp_tester',
             mode='append',
             properties={
                 'user': 'other_user',
-                'password': 'KRILLIN'
+                'password': 'KRILLIN',
+                'driver': 'org.postgresql.Driver'
             }
         )
     except Exception as e:
