@@ -28,18 +28,16 @@ def split_file_name(file_name):
 
     return user_id, session_nbr, task_id
 
-os.environ["PYSPARK_PYTHON"]="/usr/bin/python3"
-os.environ["PYSPARK_DRIVER_PYTHON"]="/usr/bin/python3"
-os.environ["PYTHONPATH"]="/usr/local/spark/python:/usr/local/spark/python/lib/py4j-0.10.7-src.zip")
-
-# os.environ["PYTHONPATH"]="{}:/usr/local/spark/python:/usr/local/spark/python/lib/py4j-0.10.7-src.zip".format(os.environ["PYTHONPATH"])
+# os.environ["PYSPARK_PYTHON"]="/usr/bin/python3"
+# os.environ["PYSPARK_DRIVER_PYTHON"]="/usr/bin/python3"
+# os.environ["PYTHONPATH"]="/usr/local/spark/python:/usr/local/spark/python/lib/py4j-0.10.7-src.zip"
 
 BUCKET_NAME = 'u-of-buffalo' 
 FILE_NAME = "001001.txt"
 
 conf = SparkConf().setAppName("MVP_getS3_conf").setMaster("local[*]")
 spark = SparkSession.builder.appName("MVP_getS3_spark").getOrCreate()
-sc = SparkContext(conf=conf)
+# sc = SparkContext(conf=conf)
 
 schema = StructType([
         StructField("user_id", IntegerType(), False),
