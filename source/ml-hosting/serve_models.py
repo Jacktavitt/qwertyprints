@@ -5,7 +5,7 @@
 #     get some other users' data
 #     feed these into the algorithm
 #     store result into mongodb
-
+# and somethign else?
 
 
 import json
