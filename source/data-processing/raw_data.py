@@ -18,6 +18,7 @@
 
 import os
 import csv
+import argparse
 import configparser
 from boto3 import resource
 from pyspark.sql.functions import lit, lag, concat, concat_ws
@@ -32,11 +33,11 @@ def split_file_name(file_name):
     return user_id, session_nbr, task_id
 
 
-def main():
+def main(configfile):
 
     # read config data
     config = configparser.ConfigParser()
-    config.read('../../config/raw_data.ini')
+    config.read(configfile)
 
     conf = SparkConf().setAppName(config['conf']['appname']).setMaster(config['conf']['master'])
 
@@ -90,7 +91,10 @@ def main():
 
 
 if __name__=="__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-c', '--config_file', required=True, help='file containing proper configuration info')
+    args = parser.parse_args()
+    main(args.config_file)
 
 
 
