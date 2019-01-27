@@ -71,7 +71,7 @@ def main(configfile):
         key_prs = timed.withColumn("key_pair", (concat_ws('_', timed["key_name"], lag(timed["key_name"], 1).over(winder))))
         # now drop the columns we dont need
         model_data = key_prs.select("user_id", "session_id", "task_id", "digraph_time", "key_pair")
-        model_data.show(12)
+        # model_data.show(12)
         # set up properties
         properties = {
             'user': config['sql.write']['user'],
@@ -85,7 +85,7 @@ def main(configfile):
                     mode=config['sql.write']['mode'],
                     properties=properties
             )
-            print("i think it worked")
+            # print("i think it worked")
         except Exception as e:
             print( e)
 
