@@ -7,83 +7,84 @@
 # -------------------------------------
 # |   Session_ID
 # -------------------------------------
-# |   Key_pair
+# |   Task_id
 # -------------------------------------
 # |   Digraph_time
 # -------------------------------------
-# |   Task_id
+# |   Key_pair
 # -------------------------------------
 
-import argparse
 
 
 import os
 import csv
-from pyspark.sql.functions import lit
+import configparser
+from boto3 import resource
+from pyspark.sql.functions import lit, lag, concat, concat_ws
 from pyspark import SparkContext, SparkConf
-from pyspark.sql import SQLContext, SparkSession, Row, Column
+from pyspark.sql import SQLContext, SparkSession, Row, Column, Window, WindowSpec
 from pyspark.sql.types import *
 
 def split_file_name(file_name):
     user_id = int(file_name[:3])
     session_nbr = int(file_name[3])
     task_id = int(file_name[5])
-
     return user_id, session_nbr, task_id
 
-# os.environ["PYSPARK_PYTHON"]="/usr/bin/python3"
-# os.environ["PYSPARK_DRIVER_PYTHON"]="/usr/bin/python3"
-# os.environ["PYTHONPATH"]="/usr/local/spark/python:/usr/local/spark/python/lib/py4j-0.10.7-src.zip"
 
-BUCKET_NAME = 'u-of-buffalo' 
-FILE_NAME = "001001.txt"
+def main():
 
-# conf = SparkConf().setAppName("MVP_getS3_conf").setMaster("local[*]") ec2-54-214-60-202.us-west-2.compute.amazonaws.com
-conf = SparkConf().setAppName("MVP_getS3_conf").setMaster("spark://ec2-54-214-60-202.us-west-2.compute.amazonaws.com:7077")
+    # read config data
+    config = configparser.ConfigParser()
+    config.read('../raw_data.ini')
 
-spark = SparkSession.builder.appName("MVP_getS3_spark").getOrCreate()
-# sc = SparkContext(conf=conf)
+    conf = SparkConf().setAppName(config['conf']['appname']).setMaster(config['conf']['master'])
 
-# schema = StructType([
-#         StructField("user_id", IntegerType(), False),
-#         StructField("session_id", IntegerType()),
-#         StructField("key_pair", StringType()),
-#         StructField("digraph_time", IntegerType()),
-#         StructField("task_id", IntegerType())
-#     ])
+    spark = SparkSession.builder.appName(config['conf']['appname']).getOrCreate()
+    # get list of files in bucket
+    s3 = resource('s3')
+    bucket = s3.Bucket(config['s3.read']['bucketname'])
+    file_list = [file.key for file in bucket.objects.all()]
+    for file_name in file_list:
+    # iterate over these files and make into schema. TODO: check for bottleneck
+        df = spark.read.option("delimiter", " ").csv("s3a://{}/{}".format(config['s3.read']['bucketname'], file_name))
+        # get info from file name
+        user_id, session_id, task_id = split_file_name(file_name)
 
-# rdd = sc.textFile("s3a://{}/{}.txt".format(BUCKET_NAME, FILE_NAME))
-df = spark.read.option("delimiter", " ").csv("s3a://{}/{}".format(BUCKET_NAME, FILE_NAME))
-# get info from file name
-user_id, _, _ = split_file_name(FILE_NAME)
+        # set column names
+        df_named = df.withColumnRenamed('_c0','key_name')   \
+            .withColumnRenamed('_c1', 'key_action')     \
+            .withColumnRenamed('_c2','action_time')     \
+            .withColumn("user_id", lit(user_id))        \
+            .withColumn("session_id", lit(session_id))  \
+            .withColumn("task_id", lit(task_id))
 
-# not ideal, but a hacky fix.
-df_named = df.withColumnRenamed('_c0','key_name')\
-    .withColumnRenamed('_c1', 'key_action')\
-    .withColumnRenamed('_c2','action_time')\
-    .withColumn("user_id", lit(user_id))
+        df_typed = df_named.withColumn("action_time", df_named["action_time"].cast(LongType())) # number is too big! must be LongType instead of IntegerType
 
-df_typed = df_named.withColumn("key_name", df_named["key_name"].cast(StringType())) \
-        .withColumn("action_time", df_named["action_time"].cast(IntegerType())) \
-        .withColumn("user_id", df_named["user_id"].cast(IntegerType()))
-
-# pgdb_dns = "ec2-34-222-121-241.us-west-2.compute.amazonaws.com"
-# pgdb_ip = "34.222.121.241"
-# pgdb_port = 5432
-# dbname = "keystroke_data"
-properties = {
-            'user': 'other_user',
-            'password': 'KRILLIN',
-            'driver': 'org.postgresql.Driver'
+        winder = Window.partitionBy("user_id").orderBy("action_time")
+        # only use keydowns
+        keydowns = df_typed.filter(df_typed["key_action"].isin("KeyDown"))
+        # generate digraph time
+        timed = keydowns.withColumn("digraph", (keydowns["action_time"] - lag(keydowns["action_time"], 1).over(winder)))
+        # generate key pairs
+        key_prs = timed.withColumn("keypair", (concat_ws('_', timed["key_name"], lag(timed["key_name"], 1).over(winder))))
+        # now drop the columns we dont need
+        model_data = key_prs.select("user_id", "session_id", "task_id", "digraph", "keypair")
+        # set up properties
+        properties = {
+            'user': config['sql.write']['user'],
+            'password': config['sql.write']['password'],
+            'driver': config['sql.write']['driver']
         }
-mode = 'overwrite'
-url = "jdbc:postgresql://34.222.121.241:5432/keystroke_data"
-# now write to postgresql
-try:
-    # df_named.write.option('driver', 'org.postgresql.Driver').jdbc(
-    df_typed.write.jdbc(url, 'mvp_dumb', mode=mode, properties=properties)
-except Exception as e:
-    print( e)
+        try:
+            model_data.write.jdbc(
+                    config['sql.write']['url'],
+                    config['sql.write']['table'],
+                    mode=config['sql.write']['mode'],
+                    properties=properties
+            )
+        except Exception as e:
+            print( e)
 
 
 

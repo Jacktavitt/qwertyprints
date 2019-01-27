@@ -3,4 +3,6 @@
 *.pdf
 *.jpg
 *.png
-.idea
+*.idea
+*.secrets
+*.ini
