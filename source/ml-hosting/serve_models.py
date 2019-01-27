@@ -7,28 +7,25 @@
 #     store result into mongodb
 # and somethign else?
 
+# reference: https://spark.apache.org/docs/2.3.0/ml-classification-regression.html
 
 import json
 from pyspark.sql import SparkSession
+from pyspark.ml import Pipeline
+from pyspark.ml.classification import GBTClassifier
+from pyspark.ml.feature import StringIndexer, VectorIndexer
+from pyspark.ml.evaluation import MulticlassClassificationEvaluator
 
-
-
-spark = SparkSession \
-    .builder \
-    .appName("model_to_mongo") \
-    .config("spark.mongodb.input.uri", "mongodb://52.40.193.219/test.mvpModels") \
-    .config("spark.mongodb.output.uri", "mongodb://52.40.193.219/test.mvpModels") \
-    .getOrCreate()
-
-people = spark.createDataFrame([("Bilbo Baggins",  50), ("Gandalf", 1000), ("Thorin", 195), ("Balin", 178), ("Kili", 77),
-   ("Dwalin", 169), ("Oin", 167), ("Gloin", 158), ("Fili", 82), ("Bombur", None)], ["name", "age"])
-
-people.write.format("com.mongodb.spark.sql").mode("append").save()
-
-def train_model(user_id):
-    return {
-        "user_id": user_id,
-        "model": {
-            "blah": "yaddah yaddah"
-        }
-    }
+def main():
+    """ 
+    Summary line. 
+  
+    Extended description of function. 
+  
+    Parameters: 
+    arg1 (int): Description of arg1 
+  
+    Returns: 
+    int: Description of return value 
+  
+    """
