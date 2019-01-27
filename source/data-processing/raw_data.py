@@ -36,7 +36,7 @@ def main():
 
     # read config data
     config = configparser.ConfigParser()
-    config.read('../raw_data.ini')
+    config.read('../../config/raw_data.ini')
 
     conf = SparkConf().setAppName(config['conf']['appname']).setMaster(config['conf']['master'])
 
