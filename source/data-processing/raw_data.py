@@ -65,11 +65,12 @@ def main():
         # only use keydowns
         keydowns = df_typed.filter(df_typed["key_action"].isin("KeyDown"))
         # generate digraph time
-        timed = keydowns.withColumn("digraph", (keydowns["action_time"] - lag(keydowns["action_time"], 1).over(winder)))
+        timed = keydowns.withColumn("digraph_time", (keydowns["action_time"] - lag(keydowns["action_time"], 1).over(winder)))
         # generate key pairs
-        key_prs = timed.withColumn("keypair", (concat_ws('_', timed["key_name"], lag(timed["key_name"], 1).over(winder))))
+        key_prs = timed.withColumn("key_pair", (concat_ws('_', timed["key_name"], lag(timed["key_name"], 1).over(winder))))
         # now drop the columns we dont need
         model_data = key_prs.select("user_id", "session_id", "task_id", "digraph", "keypair")
+        model_data.show(12)
         # set up properties
         properties = {
             'user': config['sql.write']['user'],
@@ -83,6 +84,7 @@ def main():
                     mode=config['sql.write']['mode'],
                     properties=properties
             )
+            print("i think it worked")
         except Exception as e:
             print( e)
 
