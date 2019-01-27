@@ -6,3 +6,4 @@
 *.idea
 *.secrets
 *.ini
+**/data

@@ -1,7 +1,11 @@
+# This will serve the ML algorithm. Steps:
 
-# /pyspark --conf "spark.mongodb.input.uri=mongodb://52.40.193.219/test.mvpModels?readPreference=primaryPreferred" \
-#               --conf "spark.mongodb.output.uri=mongodb://52.40.193.219/test.mvpModels" \
-#               --packages org.mongodb.spark:mongo-spark-connector_2.11:2.3.2
+# for a user:
+#     get user's data
+#     get some other users' data
+#     feed these into the algorithm
+#     store result into mongodb
+
 
 
 import json
