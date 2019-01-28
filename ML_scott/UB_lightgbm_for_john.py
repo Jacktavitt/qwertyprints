@@ -40,6 +40,7 @@ for user_i in all_users:
             df['time'] = df['time'] - df['time'][0]
 
             # Split task into trials
+            # all keydowns
             df_down = df[df['event']=='KeyDown']
             trial_idx_bounds = list(df_down[::100].index)
             N_trials = len(trial_idx_bounds) - 1

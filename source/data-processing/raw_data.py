@@ -40,7 +40,7 @@ def main(configfile):
     config.read(configfile)
 
     conf = SparkConf().setAppName(config['conf']['appname']).setMaster(config['conf']['master'])
-
+    # TODO: make sure master is being set porperly for SPARKSESSION
     spark = SparkSession.builder.appName(config['conf']['appname']).getOrCreate()
     # get list of files in bucket
     s3 = resource('s3')
@@ -79,10 +79,11 @@ def main(configfile):
             'driver': config['sql.write']['driver']
         }
         try:
+            # TODO: make sure this is writing as APPEND instead of overwriting!
             model_data.write.jdbc(
                     config['sql.write']['url'],
                     config['sql.write']['table'],
-                    mode=config['sql.write']['mode'],
+                    mode="append",
                     properties=properties
             )
             # print("i think it worked")
