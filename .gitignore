@@ -1,9 +1,9 @@
-.vscode
+**.vscode/
 *.crud
 *.pdf
 *.jpg
+*.jpeg
 *.png
 *.idea
 *.secrets
 *.ini
-**/data
