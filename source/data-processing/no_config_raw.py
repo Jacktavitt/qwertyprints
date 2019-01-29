@@ -46,48 +46,49 @@ def main(configfile):
     s3 = resource('s3')
     bucket = s3.Bucket(config['s3.read']['bucketname'])
     file_list = [file.key for file in bucket.objects.all()]
-    for file_name in file_list:
+    # for file_name in file_list:
+    file_name = file_list[int(len(file_list)/2)]
     # iterate over these files and make into schema. TODO: check for bottleneck
-        df = spark.read.option("delimiter", " ").csv("s3a://{}/{}".format(config['s3.read']['bucketname'], file_name))
-        # get info from file name
-        user_id, session_id, task_id = split_file_name(file_name)
+    df = spark.read.option("delimiter", " ").csv("s3a://{}/{}".format(config['s3.read']['bucketname'], file_name))
+    # get info from file name
+    user_id, session_id, task_id = split_file_name(file_name)
 
-        # set column names
-        df_named = df.withColumnRenamed('_c0','key_name')   \
-            .withColumnRenamed('_c1', 'key_action')     \
-            .withColumnRenamed('_c2','action_time')     \
-            .withColumn("user_id", lit(user_id))        \
-            .withColumn("session_id", lit(session_id))  \
-            .withColumn("task_id", lit(task_id))
+    # set column names
+    df_named = df.withColumnRenamed('_c0','key_name')   \
+        .withColumnRenamed('_c1', 'key_action')     \
+        .withColumnRenamed('_c2','action_time')     \
+        .withColumn("user_id", lit(user_id))        \
+        .withColumn("session_id", lit(session_id))  \
+        .withColumn("task_id", lit(task_id))
 
-        df_typed = df_named.withColumn("action_time", df_named["action_time"].cast(LongType())) # number is too big! must be LongType instead of IntegerType
+    df_typed = df_named.withColumn("action_time", df_named["action_time"].cast(LongType())) # number is too big! must be LongType instead of IntegerType
 
-        winder = Window.partitionBy("user_id").orderBy("action_time")
-        # only use keydowns
-        keydowns = df_typed.filter(df_typed["key_action"].isin("KeyDown"))
-        # generate digraph time
-        timed = keydowns.withColumn("digraph_time", (keydowns["action_time"] - lag(keydowns["action_time"], 1).over(winder)))
-        # generate key pairs
-        key_prs = timed.withColumn("key_pair", (concat_ws('_', timed["key_name"], lag(timed["key_name"], 1).over(winder))))
-        # now drop the columns we dont need
-        model_data = key_prs.select("user_id", "session_id", "task_id", "digraph_time", "key_pair")
-        # model_data.show(12)
-        # set up properties
-        properties = {
-            'user': config['sql.write']['user'],
-            'password': config['sql.write']['password'],
-            'driver': config['sql.write']['driver']
-        }
-        try:
-            model_data.write.jdbc(
-                    config['sql.write']['url'],
-                    config['sql.write']['table'],
-                    mode=config['sql.write']['mode'],
-                    properties=properties
-            )
-            # print("i think it worked")
-        except Exception as e:
-            print( e)
+    winder = Window.partitionBy("user_id").orderBy("action_time")
+    # only use keydowns
+    keydowns = df_typed.filter(df_typed["key_action"].isin("KeyDown"))
+    # generate digraph time
+    timed = keydowns.withColumn("digraph_time", (keydowns["action_time"] - lag(keydowns["action_time"], 1).over(winder)))
+    # generate key pairs
+    key_prs = timed.withColumn("key_pair", (concat_ws('_', timed["key_name"], lag(timed["key_name"], 1).over(winder))))
+    # now drop the columns we dont need
+    model_data = key_prs.select("user_id", "session_id", "task_id", "digraph_time", "key_pair")
+    # model_data.show(12)
+    # set up properties
+    properties = {
+        'user': config['sql.write']['user'],
+        'password': config['sql.write']['password'],
+        'driver': config['sql.write']['driver']
+    }
+    try:
+        model_data.write.jdbc(
+                config['sql.write']['url'],
+                config['sql.write']['table'],
+                mode='overwrite',
+                properties=properties
+        )
+        # print("i think it worked")
+    except Exception as e:
+        print( e)
 
 
 if __name__=="__main__":
