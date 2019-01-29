@@ -41,7 +41,7 @@ def main(configfile):
 
     conf = SparkConf().setAppName(config['conf']['appname']).setMaster(config['conf']['master'])
 
-    spark = SparkSession.builder.appName(config['conf']['appname']).getOrCreate()
+    spark = SparkSession.builder.appName(config['conf']['appname']).master(config['conf']['master']).getOrCreate()
     # get list of files in bucket
     s3 = resource('s3')
     bucket = s3.Bucket(config['s3.read']['bucketname'])
