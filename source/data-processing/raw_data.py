@@ -39,9 +39,9 @@ def main(configfile):
     config = configparser.ConfigParser()
     config.read(configfile)
 
-    conf = SparkConf().setAppName(config['conf']['appname']).setMaster(config['conf']['master'])
+    # conf = SparkConf()
     # TODO: make sure master is being set porperly for SPARKSESSION
-    spark = SparkSession.builder.appName(config['conf']['appname']).getOrCreate()
+    spark = SparkSession.builder.getOrCreate()
     # get list of files in bucket
     s3 = resource('s3')
     bucket = s3.Bucket(config['s3.read']['bucketname'])
