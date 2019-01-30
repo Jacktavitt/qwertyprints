@@ -19,28 +19,28 @@ def split_file_name(file_name):
     return user_id, session_nbr, task_id
 
 
-def main(file_name):
-
+def main(configfile):
+    ''' here master is sent in from spark-submit'''
     # read config data
     config = configparser.ConfigParser()
     config.read(configfile)
 
-    conf = SparkConf().setAppName(config['conf']['appname']).setMaster(config['conf']['master'])
+    # conf = SparkConf().setAppName('singleServing')
 
     spark = SparkSession.builder.appName(config['conf']['appname']).getOrCreate()
     # get list of files in bucket
-
+    file_name = '001001.txt'
     # iterate over these files and make into schema. TODO: check for bottleneck
-    df = spark.read.option("delimiter", " ").csv("s3a://{}/{}".format(config['s3.read']['bucketname'], file_name))
+    df = spark.read.option("delimiter", " ").csv("s3a://u-of-buffalo/001001.txt")
     # get info from file name
     user_id, session_id, task_id = split_file_name(file_name)
 
     # set column names
-    # TODO: try to optimize this. maybe add other columns at the end?
+
     df_named = df.withColumnRenamed('_c0','key_name')   \
         .withColumnRenamed('_c1', 'key_action')     \
         .withColumnRenamed('_c2','action_time')     \
-        .withColumn("user_id", lit(user_id))        \ 
+        .withColumn("user_id", lit(user_id))        \
         .withColumn("session_id", lit(session_id))  \
         .withColumn("task_id", lit(task_id))
 
@@ -69,6 +69,12 @@ def main(file_name):
                 mode=config['sql.write']['mode'],
                 properties=properties
         )
-        # print("i think it worked")
+
     except Exception as e:
             print( e)
+
+if __name__=="__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-c', '--config_file', required=True, help='file containing proper configuration info')
+    args = parser.parse_args()
+    main(args.config_file)
