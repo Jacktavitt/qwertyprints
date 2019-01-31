@@ -10,7 +10,7 @@ PRODUCER = KafkaProducer(bootstrap_servers='10.0.0.12:9092, 10.0.0.8:9092, 10.0.
 def handler(message):
     records = message.collect()
     for record in records:
-        PRODUCER.send('spark_out', bytes(str(record)))
+        PRODUCER.send('spark_out', bytes(str(record), 'utf-8'))
         PRODUCER.flush()
 
 def word_counts(kafka_stream):
