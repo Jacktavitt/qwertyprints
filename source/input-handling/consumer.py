@@ -8,11 +8,10 @@ from kafka import KafkaProducer
 PRODUCER = KafkaProducer(bootstrap_servers='10.0.0.12:9092, 10.0.0.8:9092, 10.0.0.7:9092')
 
 def handler(message):
-    records = message # .collect()
-    # for record in records:
-    # records.foreachRDD(lambda x: x.send())
-    PRODUCER.send('spark_out', str(records))
-    PRODUCER.flush()
+    records = message.collect()
+    for record in records:
+        PRODUCER.send('spark_out', str(record))
+        PRODUCER.flush()
 
 def word_counts(kafka_stream):
     lines = kafka_stream.map(lambda x: x[1])
@@ -44,7 +43,7 @@ counts = word_counts(kafkaStream)
 #     .map(lambda word: (word, 1)) \
 #     .reduceByKey(lambda a, b: a+b)
 counts.pprint()
-handler(counts)
+counts.foreachRDD(handler)
 
 
 
