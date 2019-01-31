@@ -6,7 +6,7 @@ from pyspark.sql import SQLContext
 
 sparkContext = SparkContext(appName = 'testJob')
 sparkContext.setLogLevel('ERROR')
-sparkStreamingContext = StreamingContext(sparkContext, 1)
+sparkStreamingContext = StreamingContext(sparkContext, 3)
 
 # ['34.215.198.60:9092','34.217.16.2:9092','18.236.99.206:9092']
 kafkaStream = KafkaUtils.createDirectStream(sparkStreamingContext,
@@ -15,11 +15,20 @@ kafkaStream = KafkaUtils.createDirectStream(sparkStreamingContext,
             # {'metadata.broker.list':'34.215.198.60:9092, 34.217.16.2:9092, 18.236.99.206:9092'})
 
 # kvs = KafkaUtils.createDirectStream(ssc, [topic], {"metadata.broker.list": brokers})
-lines = kafkaStream.map(lambda x: x[1])
-counts = lines.flatMap(lambda line: line.split(" ")) \
-    .map(lambda word: (word, 1)) \
-    .reduceByKey(lambda a, b: a+b)
+counts = word_counts(kafkaStream)
+# lines = kafkaStream.map(lambda x: x[1])
+# counts = lines.flatMap(lambda line: line.split(" ")) \
+#     .map(lambda word: (word, 1)) \
+#     .reduceByKey(lambda a, b: a+b)
 counts.pprint()
 
 sparkStreamingContext.start()
 sparkStreamingContext.awaitTermination()
+
+
+def word_counts(kafka_stream):
+    lines = kafka_stream.map(lambda x: x[1])
+    counts = lines.flatMap(lambda line: line.split(" ")) \
+        .map(lambda word: (word, 1)) \
+        .reduceByKey(lambda a, b: a+b)
+    return counts
