@@ -20,5 +20,5 @@ counts = lines.flatMap(lambda line: line.split(" ")) \
     .reduceByKey(lambda a, b: a+b)
 counts.pprint()
 
-ssc.start()
-ssc.awaitTermination()
+sparkStreamingContext.start()
+sparkStreamingContext.awaitTermination()
