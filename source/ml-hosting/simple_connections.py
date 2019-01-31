@@ -43,11 +43,12 @@ label_df = whole_df.withColumn("label", lit(whole_df['user_id'] == user_id))
 
 # TRainiNG MaGick!
 # TODO: make a Gradient boost algo here that makes an output
-pivot table so that the columns are keypairs
-make another table that has trye/ false values as a mirror
+# pivot table so that the columns are keypairs
+# make another table that has trye/ false values as a mirror
 
+piv3 = whole_df.groupBy("user_id", "task_id", "session_id").pivot("key_pair").avg("digraph_time")
 
-
+# make another table that has trye/ false values as a mirror
 
 
 # for now use  JSON file from ../../data/user_models/user075_model.json

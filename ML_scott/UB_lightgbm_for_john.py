@@ -31,33 +31,33 @@ for user_i in all_users:
 
     for sess_i in all_sess:
         for task_i in all_tasks:
-            # Determine paths to data
-            file_path = 'data_raw/ub/s{:d}/baseline/{:03d}{:d}0{:d}.txt'.format(
-                sess_i, user_i, sess_i, task_i)
+# Determine paths to data
+file_path = 'data_raw/ub/s{:d}/baseline/{:03d}{:d}0{:d}.txt'.format(
+    sess_i, user_i, sess_i, task_i)
 
-            df = pd.read_csv(file_path, delimiter=' ',
-                     header=None, names=['key', 'event', 'time'])
-            df['time'] = df['time'] - df['time'][0]
+df = pd.read_csv(file_path, delimiter=' ',
+            header=None, names=['key', 'event', 'time'])
+df['time'] = df['time'] - df['time'][0]
 
-            # Split task into trials
-            # all keydowns
-            df_down = df[df['event']=='KeyDown']
-            trial_idx_bounds = list(df_down[::100].index)
-            N_trials = len(trial_idx_bounds) - 1
-            for i_trial in range(N_trials):
-                df_trial = df.loc[trial_idx_bounds[i_trial]:trial_idx_bounds[i_trial+1]-1]
+# Split task into trials
+# all keydowns
+df_down = df[df['event']=='KeyDown']
+trial_idx_bounds = list(df_down[::100].index)
+N_trials = len(trial_idx_bounds) - 1
+for i_trial in range(N_trials):
+    df_trial = df.loc[trial_idx_bounds[i_trial]:trial_idx_bounds[i_trial+1]-1]
 
-                # Compute digraphs
-                trial_name = '{:03d}_{:d}_{:d}_{:03d}'.format(user_i, sess_i, task_i, i_trial)
-                dfd = df_trial[df_trial['event']=='KeyDown'].reset_index(drop=True)
-                dfd['dg_time'] = dfd['time'].diff()
-                dfd['key_prev'] = np.insert(dfd['key'].values[:-1], 0, np.nan)
-                dfd['key_pair'] = dfd['key_prev'] + '_' + dfd['key']
-                df_dg = dfd[['key_pair', 'dg_time']].dropna().reset_index(drop=True)
-                df_dg['user_id'] = user_i
-                df_dg['sess'] = sess_i
-                df_dg['task'] = task_i
-                df_dg['trial'] = i_trial
+    # Compute digraphs
+    trial_name = '{:03d}_{:d}_{:d}_{:03d}'.format(user_i, sess_i, task_i, i_trial)
+    dfd = df_trial[df_trial['event']=='KeyDown'].reset_index(drop=True)
+    dfd['dg_time'] = dfd['time'].diff()
+    dfd['key_prev'] = np.insert(dfd['key'].values[:-1], 0, np.nan)
+    dfd['key_pair'] = dfd['key_prev'] + '_' + dfd['key']
+    df_dg = dfd[['key_pair', 'dg_time']].dropna().reset_index(drop=True)
+    df_dg['user_id'] = user_i
+    df_dg['sess'] = sess_i
+    df_dg['task'] = task_i
+    df_dg['trial'] = i_trial
 
                 dg_df_list.append(df_dg)
 df_all_dg = pd.concat(dg_df_list)
