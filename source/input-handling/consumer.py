@@ -4,9 +4,19 @@ from pyspark.streaming.kafka import KafkaUtils
 from pyspark.sql import SQLContext
 # import psycopg2
 
+def word_counts(kafka_stream):
+    lines = kafka_stream.map(lambda x: x[1])
+    counts = lines.flatMap(lambda line: line.split(" ")) \
+        .map(lambda word: (word, 1)) \
+        .reduceByKey(lambda a, b: a+b)
+    return counts
+
+
 sparkContext = SparkContext(appName = 'testJob')
 sparkContext.setLogLevel('ERROR')
 sparkStreamingContext = StreamingContext(sparkContext, 3)
+
+
 
 # ['34.215.198.60:9092','34.217.16.2:9092','18.236.99.206:9092']
 kafkaStream = KafkaUtils.createDirectStream(sparkStreamingContext,
@@ -26,9 +36,3 @@ sparkStreamingContext.start()
 sparkStreamingContext.awaitTermination()
 
 
-def word_counts(kafka_stream):
-    lines = kafka_stream.map(lambda x: x[1])
-    counts = lines.flatMap(lambda line: line.split(" ")) \
-        .map(lambda word: (word, 1)) \
-        .reduceByKey(lambda a, b: a+b)
-    return counts
