@@ -8,7 +8,7 @@ from kafka import KafkaProducer
 PRODUCER = KafkaProducer(bootstrap_servers='10.0.0.12:9092, 10.0.0.8:9092, 10.0.0.7:9092')
 
 def handler(message):
-    records = message.collect()
+    records = message # .collect()
     for record in records:
         PRODUCER.send('spark_out', str(record))
         PRODUCER.flush()
