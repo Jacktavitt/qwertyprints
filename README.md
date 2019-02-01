@@ -2,6 +2,7 @@
 
 ### Description
 #### Continuous Fraud Detection using keystroke-based metrics
+https://docs.google.com/presentation/d/14HiPllRAg2pccYvYMaN_n5uLWYFNJ-Zi9zQcuQ4FjKQ/edit?usp=sharing
 
 ### Architecture
 
@@ -12,23 +13,8 @@ Frontend (User and keystroke info) -> Document KV Storage -> Evaluate Model with
 
 ### Datatsets
 
-A few, firstly:
-
 University of Buffalo Keystroke Identification data
 
-some others, including:
-
-Touch Screen Phone based keystroke dynamics dataset: http://www.coolestech.com/rhu-keystroke/
-
-Free vs. Transcribed Text for Keystroke-Dynamics Evaluations: http://www.cs.cmu.edu/~keystroke/laser-2012/
-
-Keystroke Dynamics - Benchmark Data Set: https://www.cs.cmu.edu/~keystroke/#sec2
-
-Typing Behavior Dataset: http://cvlab.cse.msu.edu/typing-behavior-dataset.html
-
-MEU-Mobile KSD Data Set: https://archive.ics.uci.edu/ml/datasets/MEU-Mobile+KSD#
-
-these are currently all in different schema layouts.
 
 ### Engineering Challenge
 
@@ -37,10 +23,9 @@ One is the challenge to design a custom data model that we will use for the Mach
     b) have data that can be expanded into the necessary elements (interperet duration of keystroke from start time and end time, etc.)
 I am currently using a vertical layout but am considering the possible advantages of making it wider (a column for each digraph instead of a row for each keypress)
 
-The other challenge is to host a large number of ML trained models (most likely one per user) and to automate a system of retraining these models based on new/updated data. These models have a TRAIN stage and a TEST stage. TRAIN will take place upon initial batch processing of new data, and TEST will happen when either
-    a) a user is logged in and typing. A MICROBATCH will be sent to the model to authenticate the identity of the user
-    b) new BATCH data comes in. This is part of the ML model's EVALUATION stage. If it returns a worng value, it must be RETRAINED.
-The automation of this process will pose a challenge both for scheduling and the distributed processing required for the ML aspect.
+The other challenge is to host a large number of ML trained models (one per user). These models have a TRAIN stage and a TEST stage. TRAIN will take place upon initial batch processing of new data, and TEST will happen when a user is logged in and typing. A stream of data will be sent to the model to authenticate the identity of the user.
+
+
 
 ### Business Value
 
