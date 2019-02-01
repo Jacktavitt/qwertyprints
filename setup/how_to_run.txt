@@ -1,0 +1,11 @@
+
+source/data-processing/raw_data.py:
+    does initial processing from S3, and stores back into S3 bucket.
+to run:
+spark-submit --master spark://54.68.199.253:7077 --executor-memory 5G --driver-memory 5G --name initial_data_processing source/data-processing/raw_data.py
+
+source/ml-hosting/simple_connections.py:
+    grabs schema'd files from S3, pivots into wide, sparse table, converts to Pandas DF, adn runs LightGBM.
+to run:
+spark-submit --master spark://54.68.199.253:7077 --executor-memory 5G --driver-memory 5G --name easy_bake_oven source/ml-hosting/simple_connections.py
+
