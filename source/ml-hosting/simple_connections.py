@@ -24,18 +24,8 @@ collection = db['mvpModels']
 conf = SparkConf().setAppName('dbreadtest').setMaster("local[*]")
 spark = SparkSession.builder.config(conf=conf).getOrCreate()
 
-default_user_model = "~/qwertyprints/data/user_models.user075_model.json"
-
-whole_df = spark.read \
-    .format("jdbc") \
-    .option("url","jdbc:postgresql://34.222.121.241:5432/keystroke_data") \
-    .option("dbtable", "mvp_schema") \
-    .option("user", "other_user") \
-    .option("password", "KRILLIN") \
-    .option("driver", "org.postgresql.Driver") \
-    .load()
-# how many distinct keypairs?
-whole_df.select(whole_df["key_pair"]).distinct().count()
+whole_df = spark.read.csv("s3a://user-keystroke-models/first_data",
+        schema="user_id INT, session_id INT, task_id INT, digraph_time STRING, key_pair STRING")
 
 # TRainiNG MaGick!
 pivoted = whole_df.groupBy("user_id", "task_id", "session_id").pivot("key_pair").avg("digraph_time")
@@ -54,17 +44,14 @@ for user in all_users:
 
     temp_df = feature_df[feature_df['session_id'] == 2]
     test_label = np.array((temp_df['user_id'] == user).values, dtype=int)
-    test_data_matrix = temp_df.drop(['user_id', 'session_id', 'task_id'], axis=1).as_matrix())
+    test_data_matrix = temp_df.drop(['user_id', 'session_id', 'task_id'], axis=1).as_matrix()
     test_data = lgb.Dataset(test_data_matrix, label=test_label, feature_name=column_names)
 
     bst = lgb.train(param, train_data, num_round)
     user_model = bst.dump_model()
-
-    user_model['_id'] = user_id
-
-    # insert it into db
+    # this will allow us to easily look up the model in MongoDB
+    user_model['_id'] = user
     submit_id = collection.insert_one(user_model).inserted_id
-    # maybe assert that submit_id == user_id ?
 
 print("done.\n")
 

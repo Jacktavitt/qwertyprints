@@ -18,7 +18,6 @@ def split_file_name(file_name):
     return user_id, session_nbr, task_id
 
 
-
 def main():
     '''
     Main function of this picture.
