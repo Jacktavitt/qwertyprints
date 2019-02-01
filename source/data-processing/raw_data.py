@@ -1,21 +1,5 @@
 #!/usr/bin/python3
 
-# Idea here is to get this unruly bunch of miscreant data to fall in line and get on the same page.
-# Here is the ideal Schema for our ML tasks:
-# -------------------------------------
-# |   User_ID
-# -------------------------------------
-# |   Session_ID
-# -------------------------------------
-# |   Task_id
-# -------------------------------------
-# |   Digraph_time
-# -------------------------------------
-# |   Key_pair
-# -------------------------------------
-
-
-
 import os
 import csv
 import argparse
@@ -25,6 +9,7 @@ from pyspark.sql.functions import lit, lag, concat, concat_ws
 from pyspark import SparkContext, SparkConf
 from pyspark.sql import SQLContext, SparkSession, Row, Column, Window, WindowSpec
 from pyspark.sql.types import *
+from py4j.protocol import Py4JJavaError
 
 def split_file_name(file_name):
     user_id = int(file_name[:3])
@@ -33,22 +18,22 @@ def split_file_name(file_name):
     return user_id, session_nbr, task_id
 
 
-def main(configfile):
 
-    # read config data
-    config = configparser.ConfigParser()
-    config.read(configfile)
-
-    # conf = SparkConf()
-    # TODO: make sure master is being set porperly for SPARKSESSION
+def main():
+    '''
+    Main function of this picture.
+    Grabs files of raw user keystroke data from an S3 bucket, transforms into a more useful schema, and writes back to another S3 bucket.
+        sample use:
+            spark-submit --master spark://54.68.199.253:7077 --executor-memory 5G --driver-memory 5G source/data-processing/raw_data.py
+    '''
     spark = SparkSession.builder.getOrCreate()
     # get list of files in bucket
     s3 = resource('s3')
-    bucket = s3.Bucket(config['s3.read']['bucketname'])
+    bucket = s3.Bucket('u-of-buffalo')
     file_list = [file.key for file in bucket.objects.all()]
     for file_name in file_list:
     # iterate over these files and make into schema. TODO: check for bottleneck
-        df = spark.read.option("delimiter", " ").csv("s3a://{}/{}".format(config['s3.read']['bucketname'], file_name))
+        df = spark.read.option("delimiter", " ").csv("s3a://'u-of-buffalo'/{}".format(file_name))
         # get info from file name
         user_id, session_id, task_id = split_file_name(file_name)
 
@@ -71,31 +56,15 @@ def main(configfile):
         key_prs = timed.withColumn("key_pair", (concat_ws('_', timed["key_name"], lag(timed["key_name"], 1).over(winder))))
         # now drop the columns we dont need
         model_data = key_prs.select("user_id", "session_id", "task_id", "digraph_time", "key_pair")
-        # model_data.show(12)
-        # set up properties
-        properties = {
-            'user': config['sql.write']['user'],
-            'password': config['sql.write']['password'],
-            'driver': config['sql.write']['driver']
-        }
+
         try:
-            # TODO: make sure this is writing as APPEND instead of overwriting!
-            model_data.write.jdbc(
-                    config['sql.write']['url'],
-                    config['sql.write']['table'],
-                    mode="append",
-                    properties=properties
-            )
-            # print("i think it worked")
-        except Exception as e:
-            print( e)
+            model_data.write.csv("s3a://user-keystroke-models/first_data", mode='append')
+        except Py4JJavaError as e:
+            print('Encountered the (not terribly helpful) Py4JJavaError. Could not successfully connect to S3 bucket for user {}, session {}.\nError message:\n{}\n'.format(user_id, session_id, e))
 
 
 if __name__=="__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-c', '--config_file', required=True, help='file containing proper configuration info')
-    args = parser.parse_args()
-    main(args.config_file)
+    main()
 
 
 
