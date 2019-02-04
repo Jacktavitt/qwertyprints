@@ -38,7 +38,7 @@ if __name__ == "__main__":
 
     spark = getSparkSessionInstance(sparkContext.getConf())
     model_store = spark.read.format("com.mongodb.spark.sql.DefaultSource").load()
-    model_store.showSchema()
+    model_store.printSchema()
 
     kafkaStream = KafkaUtils.createDirectStream(sparkStreamingContext,
             ['user_input'],
