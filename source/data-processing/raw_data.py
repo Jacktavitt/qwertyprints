@@ -17,6 +17,15 @@ def split_file_name(file_name):
     task_id = int(file_name[5])
     return user_id, session_nbr, task_id
 
+def csv_to_schema(raw_df, file_name):
+    user_id, session_id, task_id = split_file_name(file_name)
+    df_named = df.withColumnRenamed('_c0','key_name')   \
+            .withColumnRenamed('_c1', 'key_action')     \
+            .withColumnRenamed('_c2','action_time')     \
+            .withColumn("user_id", lit(user_id))        \
+            .withColumn("session_id", lit(session_id))  \
+            .withColumn("task_id", lit(task_id))
+    return df_named
 
 def main():
     '''
@@ -43,6 +52,8 @@ def main():
             .withColumn("user_id", lit(user_id))        \
             .withColumn("session_id", lit(session_id))  \
             .withColumn("task_id", lit(task_id))
+
+        # df_named = csv_to_schema(df, file_name)
 
         df_typed = df_named.withColumn("action_time", df_named["action_time"].cast(LongType())) # number is too big! must be LongType instead of IntegerType
 

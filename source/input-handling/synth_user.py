@@ -30,7 +30,7 @@ def main(filename, PRODUCER):
         
     for entry in time_list:
         sleep(entry[-1]/1000.0)
-        PRODUCER.send('synth_user', bytes(str(entry), 'utf-8'))
+        PRODUCER.send('user_input', bytes(str(entry), 'utf-8'))
         
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
