@@ -36,6 +36,10 @@ if __name__ == "__main__":
     sparkContext.setLogLevel('ERROR')
     sparkStreamingContext = StreamingContext(sparkContext, 3)
 
+    spark = getSparkSessionInstance(rdd.context.getConf())
+    model_store = spark.read.format("com.mongodb.spark.sql.DefaultSource").load()
+    model_store.showSchema()
+
     kafkaStream = KafkaUtils.createDirectStream(sparkStreamingContext,
             ['user_input'],
             {'metadata.broker.list':'10.0.0.12:9092, 10.0.0.8:9092, 10.0.0.7:9092'})
