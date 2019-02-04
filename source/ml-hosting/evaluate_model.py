@@ -20,7 +20,7 @@ from kafka import KafkaProducer
 #         getOrCreate()
 
 def form_ml_shape(kafka_stream):
-    lines = kafka_stream.map(lambda x: [x[0], x[2], x[4]])
+    lines = kafka_stream.map(lambda x: x[1])
     # lines.pprint()
     # c1 = lines.map(lambda )
     return lines
