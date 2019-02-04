@@ -59,7 +59,7 @@ if __name__ == "__main__":
             spark=getSparkSessionInstance(rdd.context.getConf())
 
              # Convert RDD[String] to RDD[Row] to DataFrame
-            rowRdd = rdd.map(lambda bits: Row(word=w))
+            rowRdd = rdd.map(lambda w: Row(word=w))
             wordsDataFrame = spark.createDataFrame(rowRdd)
             wordsDataFrame.show()
         except:
