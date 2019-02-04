@@ -28,7 +28,6 @@ def getSparkSessionInstance(sparkConf):
 def form_ml_shape(kafka_stream):
     # TODO: must somehow split this into separate rows!
     lines = kafka_stream.map(lambda x: x[1])
-
     return lines
 
 if __name__ == "__main__":
@@ -65,6 +64,10 @@ if __name__ == "__main__":
                     .withColumn('user_id', tcdf['user_id'].cast(LongType()))
             # typdf.printSchema()
             typdf.show(5)
+            # split it by user id
+            users = typdf.select('user_id').distinct().rdd.flatMap(lambda x: x).collect()
+            for user in users:
+                user.show()
 
             # wordsDataFrame = spark.createDataFrame(rowRdd)
             # wordsDataFrame.show()
