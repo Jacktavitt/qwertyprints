@@ -74,7 +74,7 @@ if __name__ == "__main__":
                 user_model = spark.read.format("com.mongodb.spark.sql.DefaultSource") \
                         .option("pipeline", pipeline).load()
                 print("loaded user mdoel")
-                user_model.show(1)
+                user_model.printSchema()
             # wordsDataFrame = spark.createDataFrame(rowRdd)
             # wordsDataFrame.show()
             # here we do the pivot into usedul feature matrix with pandas
