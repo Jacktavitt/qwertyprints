@@ -36,7 +36,7 @@ if __name__ == "__main__":
     sparkContext.setLogLevel('ERROR')
     sparkStreamingContext = StreamingContext(sparkContext, 3)
 
-    spark = getSparkSessionInstance(rdd.context.getConf())
+    spark = getSparkSessionInstance(sparkContext.getConf())
     model_store = spark.read.format("com.mongodb.spark.sql.DefaultSource").load()
     model_store.showSchema()
 
