@@ -30,7 +30,7 @@ def key_strokes(part):
     # keylogs = message.collect()
     print("|||\n")
     # for kl in part:
-    print(kl)
+    print(part)
     print("|||\n")
 
 
@@ -46,7 +46,7 @@ def main():
             {'metadata.broker.list':'10.0.0.12:9092, 10.0.0.8:9092, 10.0.0.7:9092'})
     # change1 = form_ml_shape(kafkaStream)
     # change1.pprint()
-    kafkaStream.foreachRDD(lambda rdd: rdd.forEachPartition(key_strokes))
+    kafkaStream.foreachRDD(lambda rdd: rdd.foreachPartition(key_strokes))
     sparkStreamingContext.start()
     sparkStreamingContext.awaitTermination()
     # db = client['test']
