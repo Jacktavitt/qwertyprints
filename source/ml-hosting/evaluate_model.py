@@ -68,13 +68,13 @@ if __name__ == "__main__":
             users = typdf.select('user_id').distinct().rdd.flatMap(lambda x: x).collect()
             for user in users:
                 temp = typdf.filter(typdf['user_id']==user)
-                # temp.show()
+                temp.show()
                 # print(type(user), user)
                 pipeline = "{{'$match': {{'_id': {}}}}}".format(user)
                 user_model = spark.read.format("com.mongodb.spark.sql.DefaultSource") \
                         .option("pipeline", pipeline) \
                         .load()
-                user_model.show(2)
+                user_model.show(1)
             # wordsDataFrame = spark.createDataFrame(rowRdd)
             # wordsDataFrame.show()
             # here we do the pivot into usedul feature matrix with pandas
