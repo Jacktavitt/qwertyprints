@@ -65,11 +65,10 @@ if __name__ == "__main__":
             # typdf.printSchema()
             typdf.show(5)
             # split it by user id
-            users = typdf.select('user_id').distinct().rdd.flatMap(lambda x: x).collect()
+            # users = typdf.select('user_id').distinct().rdd.flatMap(lambda x: x).collect()
+            users = typdf.select('user_id').distinct().collect()
             # users.show()
-            print(type(users))
-            for user in users:
-                print(user)
+            print(type(users), users)
 
             # wordsDataFrame = spark.createDataFrame(rowRdd)
             # wordsDataFrame.show()
