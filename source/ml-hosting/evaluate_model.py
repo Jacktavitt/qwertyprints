@@ -27,7 +27,7 @@ def form_ml_shape(kafka_stream):
     # c1 = lines.map(lambda )
     return lines
 def key_strokes(part):
-    keylogs = message.collect()
+    # keylogs = message.collect()
     print("|||\n")
     for kl in keylogs:
         print(kl)
