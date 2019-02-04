@@ -23,8 +23,7 @@ client = MongoClient(
 db = client['models']
 collection = db['keystrokes']
 
-conf = SparkConf().setAppName('dbreadtest')
-spark = SparkSession.builder.config(conf=conf).getOrCreate()
+spark = SparkSession.builder.getOrCreate()
 
 whole_df = spark.read.csv("s3a://user-keystroke-models/first_data",
                           schema="user_id INT, session_id INT, task_id INT, digraph_time INT, key_pair STRING")
