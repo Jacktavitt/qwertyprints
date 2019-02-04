@@ -37,7 +37,7 @@ if __name__ == "__main__":
 
     spark = getSparkSessionInstance(sparkContext.getConf())
     model_store = spark.read.format("com.mongodb.spark.sql.DefaultSource").load()
-    model_store.printSchema()
+    # model_store.printSchema()
 
     kafkaStream = KafkaUtils.createDirectStream(sparkStreamingContext,
             ['user_input'],
@@ -63,16 +63,18 @@ if __name__ == "__main__":
             typdf = tcdf.withColumn('duration', tcdf['duration'].cast(LongType())) \
                     .withColumn('user_id', tcdf['user_id'].cast(LongType()))
             # typdf.printSchema()
-            typdf.show(5)
+            # typdf.show(5)
             # split it by user id
             users = typdf.select('user_id').distinct().rdd.flatMap(lambda x: x).collect()
-            # users = typdf.select('user_id').distinct().collect()
-            # users.show()
             for user in users:
                 temp = typdf.filter(typdf['user_id']==user)
-                temp.show()
-                print(type(user), user)
-
+                # temp.show()
+                # print(type(user), user)
+                pipeline = "{{'$match': {{'_id': {}}}}}".format(user)
+                user_model = spark.read.format("com.mongodb.spark.sql.DefaultSource") \
+                        .option("pipeline", pipeline) \
+                        .load()
+                user_model.show(2)
             # wordsDataFrame = spark.createDataFrame(rowRdd)
             # wordsDataFrame.show()
             # here we do the pivot into usedul feature matrix with pandas
