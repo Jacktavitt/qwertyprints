@@ -60,7 +60,7 @@ if __name__ == "__main__":
             typdf = tcdf.withColumn('duration', tcdf['duration'].cast(LongType())) \
                     .withColumn('user_id', tcdf['user_id'].cast(LongType()))
             typdf.printSchema()
-            
+
             # wordsDataFrame = spark.createDataFrame(rowRdd)
             # wordsDataFrame.show()
             # here we do the pivot into usedul feature matrix with pandas
@@ -69,8 +69,8 @@ if __name__ == "__main__":
 
             # bst = lgb.Booster(model_file='model.txt')
             # ypred = bst.predict(test_data_mat)`
-        except:
-            pass
+        except Exception as e:
+            print(e)
 
     keys.foreachRDD(process)
     sparkStreamingContext.start()
