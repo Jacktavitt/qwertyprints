@@ -13,11 +13,11 @@ from pyspark.streaming.kafka import KafkaUtils
 from pyspark.sql import SQLContext
 from kafka import KafkaProducer
 
-SPARK = SparkSession.builder. \
-        appName('t2'). \
-        config("spark.mongodb.input.uri", "mongodb://ec2-52-40-193-219.us-west-2.compute.amazonaws.com:27017/models.keystrokes"). \
-        config("spark.mongodb.output.uri", "mongodb://ec2-52-40-193-219.us-west-2.compute.amazonaws.com:27017/models.keystrokes"). \
-        getOrCreate()
+# SPARK = SparkSession.builder. \
+#         appName('t2'). \
+#         config("spark.mongodb.input.uri", "mongodb://ec2-52-40-193-219.us-west-2.compute.amazonaws.com:27017/models.keystrokes"). \
+#         config("spark.mongodb.output.uri", "mongodb://ec2-52-40-193-219.us-west-2.compute.amazonaws.com:27017/models.keystrokes"). \
+#         getOrCreate()
 
 def form_ml_shape(kafka_stream):
     lines = kafka_stream.map(lambda x: x[0], x[2], x[4])
@@ -26,7 +26,7 @@ def form_ml_shape(kafka_stream):
     return lines
 
 def main():
-    df = SPARK.read.format("com.mongodb.spark.sql.DefaultSource").load()
+    # df = SPARK.read.format("com.mongodb.spark.sql.DefaultSource").load()
     # df.printSchema()
     # retreive user's model
     sparkContext = SparkContext(appName = 'evaluateModels')
