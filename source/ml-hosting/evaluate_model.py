@@ -59,7 +59,8 @@ if __name__ == "__main__":
             tcdf = cdf.withColumn('duration', trim(cdf['duration']))
             typdf = tcdf.withColumn('duration', tcdf['duration'].cast(LongType())) \
                     .withColumn('user_id', tcdf['user_id'].cast(LongType()))
-            typdf.printSchema()
+            # typdf.printSchema()
+            typdf.show(5)
 
             # wordsDataFrame = spark.createDataFrame(rowRdd)
             # wordsDataFrame.show()
