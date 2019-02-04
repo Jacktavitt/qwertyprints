@@ -13,11 +13,6 @@ from pyspark.streaming.kafka import KafkaUtils
 from pyspark.sql import SQLContext
 from kafka import KafkaProducer
 
-# SPARK = SparkSession.builder. \
-#         appName('t2'). \
-#         config("spark.mongodb.input.uri", "mongodb://ec2-52-40-193-219.us-west-2.compute.amazonaws.com:27017/models.keystrokes"). \
-#         config("spark.mongodb.output.uri", "mongodb://ec2-52-40-193-219.us-west-2.compute.amazonaws.com:27017/models.keystrokes"). \
-#         getOrCreate()
 def getSparkSessionInstance(sparkConf):
     if ('sparkSessionSingletonInstance' not in globals()):
         globals()['sparkSessionSingletonInstance'] = SparkSession\
@@ -28,21 +23,14 @@ def getSparkSessionInstance(sparkConf):
             .getOrCreate()
     return globals()['sparkSessionSingletonInstance']
 
-
-
 def form_ml_shape(kafka_stream):
-    # lines = kafka_stream.map(lambda x: [x[0], x[1], len(x)])
+    # TODO: must somehow split this into separate rows!
     lines = kafka_stream.map(lambda x: x[1]) \
         .map(lambda line: Row(line.split('|')))
 
-    # lines.pprint()
-    # c1 = lines.map(lambda )
     return lines
 
 if __name__ == "__main__":
-    # df = SPARK.read.format("com.mongodb.spark.sql.DefaultSource").load()
-    # df.printSchema()
-    # retreive user's model
     sparkContext = SparkContext(appName = 'evaluateModels')
     sparkContext.setLogLevel('ERROR')
     sparkStreamingContext = StreamingContext(sparkContext, 3)
@@ -62,6 +50,12 @@ if __name__ == "__main__":
             rowRdd = rdd.map(lambda w: Row(word=w))
             wordsDataFrame = spark.createDataFrame(rowRdd)
             wordsDataFrame.show()
+            # here we do the pivot into usedul feature matrix with pandas
+            # load and evaluate the model with lgbm
+            # if it passes, send result
+
+            # bst = lgb.Booster(model_file='model.txt')
+            # ypred = bst.predict(test_data_mat)`
         except:
             pass
 
@@ -70,7 +64,5 @@ if __name__ == "__main__":
     sparkStreamingContext.awaitTermination()
 
 
-    # bst = lgb.Booster(model_file='model.txt')
-    # ypred = bst.predict(test_data_mat)`
 if __name__=="__main__":
     main()
