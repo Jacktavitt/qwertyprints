@@ -13,7 +13,7 @@ from pyspark.streaming.kafka import KafkaUtils
 from pyspark.sql import SQLContext
 from kafka import KafkaProducer
 from pyspark.sql.types import *
-from pyspark.sql.functions import split
+from pyspark.sql.functions import split, trim
 
 def getSparkSessionInstance(sparkConf):
     if ('sparkSessionSingletonInstance' not in globals()):
