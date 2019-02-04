@@ -4,13 +4,15 @@ from time import sleep
 import argparse
 from os import path
 
+PRODUCER = KafkaProducer(bootstrap_servers=['34.215.198.60:9092','34.217.16.2:9092','18.236.99.206:9092'])
+
 def split_file_name(file_name):
     user_id = int(file_name[:3])
     session_id = file_name[:4]
     task_id = int(file_name[5])
     return user_id, session_id, task_id
 
-def main(filename, PRODUCER):
+def main(filename):
     '''
     pretends to be a user typing, based on raw data from the university of buffalo. Sends over
     a Kafka topic 'synth_user'
@@ -37,5 +39,5 @@ if __name__=="__main__":
     parser.add_argument('-f', '--filename', required=True,
         help='file of keystrokes to open, sample filename: /home/johnny/Documents/INSIGHT/project/keystrokes/U_of_Buffalo/UB_keystroke_dataset/s0/baseline/002001.txt')
     args = parser.parse_args()
-    PRODUCER = KafkaProducer(bootstrap_servers=['34.215.198.60:9092','34.217.16.2:9092','18.236.99.206:9092'])
-    main(args.filename, PRODUCER)
+    # PRODUCER = KafkaProducer(bootstrap_servers=['34.215.198.60:9092','34.217.16.2:9092','18.236.99.206:9092'])
+    main(args.filename)
