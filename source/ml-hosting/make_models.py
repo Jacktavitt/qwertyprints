@@ -31,6 +31,7 @@ whole_df = spark.read.csv("s3a://user-keystroke-models/first_data",
 # TRainiNG MaGick!
 pivoted = whole_df.groupBy("user_id", "task_id", "session_id").pivot(
     "key_pair").avg("digraph_time")
+    # TODO: get everything in one machine to make this step eaiser?
 feature_df = pivoted.toPandas()
 feature_df_users = feature_df.drop(
     ['user_id', 'session_id', 'task_id'], axis=1)

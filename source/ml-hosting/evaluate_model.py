@@ -12,6 +12,8 @@ from pyspark.streaming import StreamingContext
 from pyspark.streaming.kafka import KafkaUtils
 from pyspark.sql import SQLContext
 from kafka import KafkaProducer
+from pyspark.sql.types import *
+from pyspark.sql.functions import split
 
 def getSparkSessionInstance(sparkConf):
     if ('sparkSessionSingletonInstance' not in globals()):
@@ -25,8 +27,7 @@ def getSparkSessionInstance(sparkConf):
 
 def form_ml_shape(kafka_stream):
     # TODO: must somehow split this into separate rows!
-    lines = kafka_stream.map(lambda x: x[1]) \
-        .map(lambda line: Row(line.split('|')))
+    lines = kafka_stream.map(lambda x: x[1])
 
     return lines
 
@@ -47,9 +48,21 @@ if __name__ == "__main__":
             spark=getSparkSessionInstance(rdd.context.getConf())
 
              # Convert RDD[String] to RDD[Row] to DataFrame
-            rowRdd = rdd.map(lambda w: Row(word=w))
-            wordsDataFrame = spark.createDataFrame(rowRdd)
-            wordsDataFrame.show()
+            rows = rdd.flatMap(lambda line: line.split('|'))
+            rdf = spark.createDataFrame(rows, StringType())
+            spit = split(rdf['value'],',')
+            cdf = rdf.withColumn('user_id', spit.getItem(0)) \
+                    .withColumn('session_id', spit.getItem(1)) \
+                    .withColumn('key', spit.getItem(2)) \
+                    .withColumn('duration', spit.getItem(4)) \
+                    .drop('value')
+            tcdf = cdf.withColumn('duration', trim(cdf['duration']))
+            typdf = tcdf.withColumn('duration', tcdf['duration'].cast(LongType())) \
+                    .withColumn('user_id', tcdf['user_id'].cast(LongType()))
+            typdf.printSchema()
+            
+            # wordsDataFrame = spark.createDataFrame(rowRdd)
+            # wordsDataFrame.show()
             # here we do the pivot into usedul feature matrix with pandas
             # load and evaluate the model with lgbm
             # if it passes, send result
