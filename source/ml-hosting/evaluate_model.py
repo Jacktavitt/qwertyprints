@@ -72,7 +72,7 @@ if __name__ == "__main__":
                 # print(type(user), user)
                 pipeline = "{{'$match': {{'_id': {}}}}}".format(user)
                 user_model = spark.read.format("com.mongodb.spark.sql.DefaultSource") \
-                        .option("pipeline", pipeline)
+                        .option("pipeline", pipeline).load()
                 print("loaded user mdoel")
                 user_model.show(1)
             # wordsDataFrame = spark.createDataFrame(rowRdd)
