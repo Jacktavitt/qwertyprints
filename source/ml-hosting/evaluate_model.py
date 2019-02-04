@@ -29,7 +29,7 @@ def form_ml_shape(kafka_stream):
 def key_strokes(part):
     # keylogs = message.collect()
     print("|||\n")
-    for kl in keylogs:
+    for kl in part:
         print(kl)
     print("|||\n")
 
