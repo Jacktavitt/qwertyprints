@@ -26,7 +26,7 @@ def getSparkSessionInstance(sparkConf):
             .config("spark.mongodb.input.uri", "mongodb://ec2-52-40-193-219.us-west-2.compute.amazonaws.com:27017/models.keystrokes")\
             .config("spark.mongodb.output.uri", "mongodb://ec2-52-40-193-219.us-west-2.compute.amazonaws.com:27017/models.keystrokes")\
             .getOrCreate()
-return globals()['sparkSessionSingletonInstance']
+    return globals()['sparkSessionSingletonInstance']
 
 
 
