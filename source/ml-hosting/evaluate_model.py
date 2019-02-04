@@ -32,7 +32,8 @@ def getSparkSessionInstance(sparkConf):
 
 def form_ml_shape(kafka_stream):
     # lines = kafka_stream.map(lambda x: [x[0], x[1], len(x)])
-    lines = kafka_stream.map(lambda x: x[1]).map(lambda line: line.split('|'))
+    lines = kafka_stream.map(lambda x: x[1]) \
+        .map(lambda line: Row(line.split('|')))
 
     # lines.pprint()
     # c1 = lines.map(lambda )
@@ -58,7 +59,7 @@ if __name__ == "__main__":
             spark=getSparkSessionInstance(rdd.context.getConf())
 
              # Convert RDD[String] to RDD[Row] to DataFrame
-            rowRdd = rdd.map(lambda w: Row(word=w))
+            rowRdd = rdd.map(lambda bits: Row(word=w))
             wordsDataFrame = spark.createDataFrame(rowRdd)
             wordsDataFrame.show()
         except:
