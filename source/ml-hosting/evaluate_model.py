@@ -21,11 +21,18 @@ from kafka import KafkaProducer
 
 def form_ml_shape(kafka_stream):
     # lines = kafka_stream.map(lambda x: [x[0], x[1], len(x)])
-    lines = kafka_stream.map(lambda x: x[1]).map(lambda line: line.split('|')).map(lambda line: line.split(','))
-    
+    lines = kafka_stream.map(lambda x: x[1]).map(lambda line: line.split('|'))
+
     # lines.pprint()
     # c1 = lines.map(lambda )
     return lines
+def key_strokes(part):
+    keylogs = message.collect()
+    print("|||\n")
+    for kl in keylogs:
+        print(kl)
+    print("|||\n")
+
 
 def main():
     # df = SPARK.read.format("com.mongodb.spark.sql.DefaultSource").load()
@@ -37,9 +44,9 @@ def main():
     kafkaStream = KafkaUtils.createDirectStream(sparkStreamingContext,
             ['user_input'],
             {'metadata.broker.list':'10.0.0.12:9092, 10.0.0.8:9092, 10.0.0.7:9092'})
-    change1 = form_ml_shape(kafkaStream)
-    change1.pprint()
-    
+    # change1 = form_ml_shape(kafkaStream)
+    # change1.pprint()
+    kafkaStream.foreachRDD(lambda rdd: key_strokes(rdd))
     sparkStreamingContext.start()
     sparkStreamingContext.awaitTermination()
     # db = client['test']
