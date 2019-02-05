@@ -13,7 +13,7 @@ PRODUCER = KafkaProducer( \
 def index(userid):
     return render_template('index.html', title="Home", user=userid)
 
-@app.route('/receiver', methods = ['POST'])
+@app.route('/index/receiver', methods = ['POST'])
 def worker():
     data = request.get_json()
     print(str(data))
