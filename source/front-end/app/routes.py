@@ -16,6 +16,8 @@ def index(userid):
 @app.route('/index/receiver', methods = ['POST'])
 def worker():
     data = request.get_json()
-    print(str(data))
-    PRODUCER.send('user_input', bytes(str(data), 'utf-8'))
-    return str(data)
+    res = [str(item) for item in data]
+
+    print(res)
+    PRODUCER.send('user_input', bytes(res, 'utf-8'))
+    return res
