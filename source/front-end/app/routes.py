@@ -25,12 +25,13 @@ def worker():
 
 @app.route('/receiver', methods = ['POST'])
 def worker():
-	# read json + reply
-	data = request.get_json()
-	result = ''
+    # read json + reply
+    data = request.get_json()
+    result = ''
 
-	for item in data:
-		# loop over every row
-		result += str(item['make']) + '\n'
+    for item in data:
+    # loop over every row
+        result += str(item['make']) + '\n'
+
     PRODUCER.send('user_input', bytes(result, 'utf-8'))
-	return result
+    return result
