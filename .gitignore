@@ -1,6 +1,8 @@
 **/.vscode/
 **/ML_scott
+**/__pycache__
 
+*.pyc
 *.crud
 *.pdf
 *.jpg
