@@ -5,7 +5,7 @@ from app import app
 from kafka import KafkaProducer
 
 PRODUCER = KafkaProducer( \
-    bootstrap_servers=['34.215.198.60:9092','34.217.16.2:9092','18.236.99.206:9092'])
+    bootstrap_servers=['54.218.73.149:9092','50.112.197.74:9092','34.222.135.111:9092'])
 
 @app.route('/')
 
@@ -19,4 +19,3 @@ def worker():
     print(str(data))
     PRODUCER.send('user_input', bytes(str(data), 'utf-8'))
     return str(data)
-    
