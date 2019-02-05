@@ -19,3 +19,4 @@ def worker():
     print(str(data))
     PRODUCER.send('user_input', bytes(str(data), 'utf-8'))
     return str(data)
+    
