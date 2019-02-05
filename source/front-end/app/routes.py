@@ -16,7 +16,7 @@ def index(userid):
     return render_template('index.html', title="Home", user=userid)
 
 @app.route('/index/receiver', methods = ['POST'])
-def worker():
+def aworker():
     data = request.get_json()
     res = [str(item) for item in data]
     print(res)
