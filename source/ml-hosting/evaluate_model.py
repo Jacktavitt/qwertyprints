@@ -12,7 +12,7 @@ from pyspark.sql import SQLContext
 from kafka import KafkaProducer
 from pyspark.sql.types import *
 from pyspark.sql.functions import split, trim
-import DataSculpting
+import DataSculpting 
 
 def getSparkSessionInstance(sparkConf):
     if ('sparkSessionSingletonInstance' not in globals()):
@@ -78,15 +78,14 @@ if __name__ == "__main__":
                         axis=1)
                 column_names = list(feature_df_users.columns)
 
-                train_data = DataSculpting.prepare_feature_matrix(
-                    feature_df,
-                    user,
-                    column_names,
-                    [0,1]
-                )
+                temp_df = feature_df[feature_df['session_id'].isin(isin_range)]
+                    # the_label = np.array((temp_df['user_id'] == user).values, dtype=int)
+                the_data_matrix = temp_df \
+                    .drop(['user_id', 'session_id'], axis=1) \
+                    .as_matrix()
                 # load and evaluate the model with lgbm
                 bst = lgb.Booster(model_file='model.txt')
-                ypred = bst.predict(test_data_mat)
+                ypred = bst.predict(the_data_matrix)
                 # if it passes, send result
 
                

@@ -3,6 +3,7 @@
 ### Description
 #### Continuous Fraud Detection using keystroke-based metrics
 https://docs.google.com/presentation/d/14HiPllRAg2pccYvYMaN_n5uLWYFNJ-Zi9zQcuQ4FjKQ/edit?usp=sharing
+https://bit.ly/2UJrNFK
 
 ### Architecture
 
