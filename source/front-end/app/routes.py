@@ -39,7 +39,7 @@ import random, json
 
 # app = Flask(__name__)
 @app.route('/')
-def output():
+def home():
 # serve index template
     return render_template('index.html', name='Joe')
 
@@ -53,7 +53,7 @@ def worker(user):
     # read json + reply
     data = request.get_json()
     if data:
-        message = '|'.join([f"{user},{session},{dig['k']},{dig['t']}" for dig in VAL]).replace(' ','Space')
+        message = '|'.join([f"{user},{user},{dig['k']},{dig['t']}" for dig in data['value']]).replace(' ','Space')
         PRODUCER.send('user_input', bytes(message, 'utf-8'))
         return message
     else:
