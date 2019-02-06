@@ -1,7 +1,9 @@
 **/.vscode/
 **/ML_scott
+**__pycache__
 **/__pycache__
-
+__pycache__
+**source/front-end/__pycache__/
 *.pyc
 *.crud
 *.pdf
