@@ -30,12 +30,12 @@ def main(filename, PRODUCER):
         
     for entry in time_list:
         sleep(entry[-1]/1000.0)
-        PRODUCER.send('synth_user', bytes(str(entry), 'utf-8'))
+        PRODUCER.send('user_input', bytes(str(entry), 'utf-8'))
         
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-f', '--filename', required=True,
         help='file of keystrokes to open, sample filename: /home/johnny/Documents/INSIGHT/project/keystrokes/U_of_Buffalo/UB_keystroke_dataset/s0/baseline/002001.txt')
     args = parser.parse_args()
-    PRODUCER = KafkaProducer(bootstrap_servers=['34.215.198.60:9092','34.217.16.2:9092','18.236.99.206:9092'])
+    PRODUCER = KafkaProducer(bootstrap_servers=['54.218.73.149:9092','50.112.197.74:9092','34.222.135.111:9092'])
     main(args.filename, PRODUCER)

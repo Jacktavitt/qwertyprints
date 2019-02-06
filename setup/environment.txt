@@ -1,0 +1,7 @@
+for Modules:
+----------------
+sudo <<editor>> ~/.bashrc
+export PYTHONPATH=$PYTHONPATH:<<path-to-modules-folder>>/Modules/
+
+for Spark:
+---------------
