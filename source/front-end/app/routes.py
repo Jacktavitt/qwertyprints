@@ -1,11 +1,8 @@
-# # from flask import render_template
-# from flask import Flask, render_template, request, redirect, Response
-# import random, json
-# from app import app
-# from kafka import KafkaProducer
 
-# PRODUCER = KafkaProducer( \
-#     bootstrap_servers=['54.218.73.149:9092','50.112.197.74:9092','34.222.135.111:9092'])
+from kafka import KafkaProducer
+
+PRODUCER = KafkaProducer( \
+     bootstrap_servers=['54.218.73.149:9092','50.112.197.74:9092','34.222.135.111:9092'])
 
 # @app.route('/')
 # def output():
@@ -41,23 +38,24 @@ from flask import Flask, render_template, request, redirect, Response
 import random, json
 
 # app = Flask(__name__)
-
 @app.route('/')
 def output():
 # serve index template
-    return render_template('nuindex.html', name='Joe')
+    return render_template('index.html', name='Joe')
 
-@app.route('/receiver', methods = ['POST','GET'])
-def worker():
+@app.route('/<int:user>')
+def output(user):
+# serve index template
+    return render_template('keylog.html', name='Joe')
+
+@app.route('/<int:user>/receiver', methods = ['POST'])
+def worker(user):
     # read json + reply
     data = request.get_json()
-    result = ''
     if data:
-        # result = str([(k,v) for k,v in enumerate(data)])
-        # for item in data:
-        # # loop over every row
-        #     result += str(item) + '\n'
-        return str(data)
+        message = '|'.join([f"{user},{session},{dig['k']},{dig['t']}" for dig in VAL]).replace(' ','Space')
+        PRODUCER.send('user_input', bytes(message, 'utf-8'))
+        return message
     else:
         return "FALSE"
 
