@@ -67,7 +67,7 @@ def main():
                 temp = typdf.filter(typdf['user_id']==user)
                 # temp.show()
                 # TODO: EVALUATE THIS! THURSDAY!
-                model_file = "user{}_model.json".format(str(user).zfill(3))
+                model_file = "{}.json".format(str(user).zfill(3))
                 loaded_json = boto_client.get_object(Bucket=bucket, Key=model_file)
                 loaded_model = loaded_json["Body"].read().decode()
 
