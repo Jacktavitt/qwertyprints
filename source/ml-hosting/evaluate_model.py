@@ -91,6 +91,10 @@ def main():
                 ypred = bst.predict(the_data_matrix)
                 # if it passes, send result
                 auc = metrics.roc_auc_score(loaded_model['train_label'], ypred)
+                if auc > 50:
+                    print('user TRUE')
+                else:
+                    print('user FALSE')
 
                
         except Exception as e:
