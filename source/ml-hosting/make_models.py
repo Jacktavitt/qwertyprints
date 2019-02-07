@@ -1,5 +1,6 @@
 import pyspark
 import json
+import time
 import numpy as np
 from pyspark.sql import SparkSession
 from pyspark.sql import SQLContext
@@ -25,7 +26,7 @@ collection = db['keystrokes']
 
 spark = SparkSession.builder.getOrCreate()
 
-whole_df = spark.read.csv("s3a://user-keystroke-models/first_data",
+whole_df = spark.read.csv("s3a://user-keystroke-models/second_data",
                           schema="user_id INT, session_id INT, task_id INT, digraph_time INT, key_pair STRING")
 
 # TRainiNG MaGick!

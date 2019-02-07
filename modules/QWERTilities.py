@@ -11,7 +11,7 @@ def make_time_string(times_labeled):
         ts = ts + temp
     return ts
 
-def write_time_log(times_string, logname,*, conf):
+def write_time_log(times_string, logname, conf=None):
     fn = '{}_timelog.txt'.format(logname)
     with open(fn, 'a+') as lf:
         lf.write(times_string)

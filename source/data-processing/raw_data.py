@@ -54,6 +54,8 @@ def main():
     # create empty dataframe to hold everything, minimize s3 writingg
     whole_data_df = spark.createDataFrame(sc.emptyRDD(), schema)
 
+    _logstring = ''
+
     for file_name in file_list:
         _start_loop = time.time()
     # iterate over these files and make into schema. TODO: check for bottleneck
@@ -86,23 +88,36 @@ def main():
         whole_data_df = whole_data_df.union(model_data)
 
         _finish_loop = time.time()
+        _start_s3_write = time.time()
+        try:
+            whole_data_df.write.csv("s3a://user-keystroke-models/second_data", mode='append')
+        except Exception as e:
+            print(e)
+        _finish_s3_write = time.time()
+        _temp_logs = QTS.make_time_string([
+            ('loop time', _start_loop, _finish_loop),
+            ('S3 read time', _start_s3_read, _finish_s3_read),
+            ('transform block time', _start_transform_block, _finish_transform_block),
+            ('final S3 write time', _start_s3_write, _finish_s3_write)
+        ])
+        _logstring = _logstring + "\n\n" + _temp_logs
 
-    _start_s3_write = time.time()
-    try:
-        whole_data_df.write.csv("s3a://user-keystroke-models/second_data", mode='append')
-    except Py4JJavaError as e:
-        print('Encountered the (not terribly helpful) Py4JJavaError. Could not successfully connect to S3 bucket for user {}, session {}.\nError message:\n{}\n'.format(user_id, session_id, e))
-    _finish_s3_write = time.time()
+    # _start_s3_write = time.time()
+    # try:
+    #     whole_data_df.write.csv("s3a://user-keystroke-models/second_data", mode='append')
+    # except Exception as e:
+    #     print(e)
+    # _finish_s3_write = time.time()
 
-    logstring = QTS.make_time_string([
-        ('loopt time', _start_loop, _finish_loop),
-        ('S3 read time', _start_s3_read, _finish_s3_read),
-        ('transform block time', _start_transform_block, _finish_transform_block),
-        ('final S3 write time', _start_s3_write, _finish_s3_write)
-    ])
+    # logstring = QTS.make_time_string([
+    #     ('loopt time', _start_loop, _finish_loop),
+    #     ('S3 read time', _start_s3_read, _finish_s3_read),
+    #     ('transform block time', _start_transform_block, _finish_transform_block),
+    #     ('final S3 write time', _start_s3_write, _finish_s3_write)
+    # ])
 
     conf = sc._conf.getAll()
-    QTS.write_time_log(logstring, 'raw_data', conf)
+    QTS.write_time_log(_logstring, 'raw_data', conf)
 
 
 if __name__=="__main__":
