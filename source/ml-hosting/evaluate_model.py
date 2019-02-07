@@ -3,6 +3,7 @@ import json
 import lightgbm as lgb
 import pandas as pd
 import numpy as np
+from sklearn import metrics
 import boto3
 from pprint import pprint
 from pyspark.sql import Row, SparkSession
@@ -89,6 +90,7 @@ def main():
                 bst = lgb.Booster(model_file='model.txt')
                 ypred = bst.predict(the_data_matrix)
                 # if it passes, send result
+                auc = metrics.roc_auc_score(loaded_model['train_label'], ypred)
 
                
         except Exception as e:

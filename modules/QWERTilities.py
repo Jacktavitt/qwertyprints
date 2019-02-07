@@ -7,7 +7,7 @@ def make_time_string(times_labeled):
     '''
     ts = ''
     for tup in times_labeled:
-        temp = "{}: {}\n".format(tup[0], (tup[1]-tup[2]))
+        temp = "{}: {} seconds\n".format(tup[0], abs(tup[1]-tup[2]))
         ts = ts + temp
     return ts
 
