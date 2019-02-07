@@ -85,12 +85,12 @@ def main():
         # now drop the columns we dont need
         model_data = key_prs.select("user_id", "session_id", "task_id", "digraph_time", "key_pair")
         _finish_transform_block = time.time()
-        whole_data_df = whole_data_df.union(model_data)
+        # whole_data_df = whole_data_df.union(model_data)
 
         _finish_loop = time.time()
         _start_s3_write = time.time()
         try:
-            whole_data_df.write.csv("s3a://user-keystroke-models/second_data", mode='append')
+            model_data.write.csv("s3a://user-keystroke-models/second_data", mode='append')
         except Exception as e:
             print(e)
         _finish_s3_write = time.time()
