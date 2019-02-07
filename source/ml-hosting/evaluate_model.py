@@ -3,6 +3,7 @@ import json
 import lightgbm as lgb
 import pandas as pd
 import numpy as np
+import boto3
 from pprint import pprint
 from pyspark.sql import Row, SparkSession
 from pyspark import SparkContext
@@ -32,10 +33,12 @@ def main():
     sparkStreamingContext = StreamingContext(sparkContext, 3)
     spark = getSparkSessionInstance(sparkContext.getConf())
 
+    boto_client = boto3.client('s3')
+    bucket = 'user-ml-models'
+
     kafkaStream = KafkaUtils.createDirectStream(sparkStreamingContext,
             ['user_input'],
             {'metadata.broker.list':'10.0.0.12:9092, 10.0.0.8:9092, 10.0.0.7:9092'})
-
     keys = lines_from_stream(kafkaStream)
 
     def model_user_input(rdd):
@@ -62,9 +65,10 @@ def main():
             for user in users:
                 temp = typdf.filter(typdf['user_id']==user)
                 # temp.show()
-                # TODO: Load user models and see if it can make sense
-                # print("loaded user model")
-                # user_model.printSchema()
+                # TODO: EVALUATE THIS! THURSDAY!
+                model_file = "user{}_model.json".format(str(user).zfill(3))
+                loaded_json = boto_client.get_object(Bucket=bucket, Key=model_file)
+                loaded_model = loaded_json["Body"].read().decode()
 
                 # here we do the pivot into usedul feature matrix 
                 pivoted = temp.groupBy("user_id", "session_id") \
@@ -78,11 +82,9 @@ def main():
                         axis=1)
                 column_names = list(feature_df_users.columns)
 
-                temp_df = feature_df[feature_df['session_id'].isin(isin_range)]
+                # temp_df = feature_df[feature_df['session_id'].isin(isin_range)]
                     # the_label = np.array((temp_df['user_id'] == user).values, dtype=int)
-                the_data_matrix = temp_df \
-                    .drop(['user_id', 'session_id'], axis=1) \
-                    .as_matrix()
+                the_data_matrix = feature_df.drop(['user_id', 'session_id'], axis=1).as_matrix()
                 # load and evaluate the model with lgbm
                 bst = lgb.Booster(model_file='model.txt')
                 ypred = bst.predict(the_data_matrix)

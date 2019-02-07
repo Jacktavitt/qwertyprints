@@ -102,6 +102,9 @@ def main():
         ])
         _logstring = _logstring + "\n\n" + _temp_logs
 
+    # =========================================================================
+    # trying this led to org.apache.spark.SparkException: Job aborted due to stage failure: Total size of serialized results of 2228 tasks (1024.0 MB) is bigger than spark.driver.maxResultSize (1024.0 MB)
+    # =========================================================================
     # _start_s3_write = time.time()
     # try:
     #     whole_data_df.write.csv("s3a://user-keystroke-models/second_data", mode='append')
