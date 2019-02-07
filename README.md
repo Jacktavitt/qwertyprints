@@ -1,21 +1,17 @@
 # QWERTYprints
-
-### Description
 #### Continuous Fraud Detection using keystroke-based metrics
+##### Presentation
 https://docs.google.com/presentation/d/14HiPllRAg2pccYvYMaN_n5uLWYFNJ-Zi9zQcuQ4FjKQ/edit?usp=sharing
+##### Link
 https://bit.ly/2UJrNFK
 
 ### Architecture
 
-(Tentative)
-
-S3 -> Spark -> PostgreSQL -> ML Algorithm (Spark or Container) -> Document KV Storage (MongoDB)
-Frontend (User and keystroke info) -> Document KV Storage -> Evaluate Model with ML Algo
+(arch image)
 
 ### Datatsets
 
 University of Buffalo Keystroke Identification data
-
 
 ### Engineering Challenge
 
@@ -25,8 +21,6 @@ One is the challenge to design a custom data model that we will use for the Mach
 I am currently using a vertical layout but am considering the possible advantages of making it wider (a column for each digraph instead of a row for each keypress)
 
 The other challenge is to host a large number of ML trained models (one per user). These models have a TRAIN stage and a TEST stage. TRAIN will take place upon initial batch processing of new data, and TEST will happen when a user is logged in and typing. A stream of data will be sent to the model to authenticate the identity of the user.
-
-
 
 ### Business Value
 
@@ -39,3 +33,6 @@ An INGESTION system that brings in the data STORED in (S3) and sends this data t
 ### Stretch Goals
 
 Automate a method to record evaluation of the models and version them as they are retrained.
+
+### SETUP!
+
