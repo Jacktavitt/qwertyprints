@@ -2,6 +2,7 @@
 
 import os
 import csv
+import time
 import argparse
 import configparser
 from boto3 import resource
@@ -10,6 +11,7 @@ from pyspark import SparkContext, SparkConf
 from pyspark.sql import SQLContext, SparkSession, Row, Column, Window, WindowSpec
 from pyspark.sql.types import *
 from py4j.protocol import Py4JJavaError
+import QWERTilities as QTS
 
 
 def split_file_name(file_name):
@@ -36,16 +38,31 @@ def main():
             spark-submit --master spark://54.68.199.253:7077 --executor-memory 5G --driver-memory 5G source/data-processing/raw_data.py
     '''
     spark = SparkSession.builder.getOrCreate()
+    sc = spark.sparkContext
+    
     # get list of files in bucket
     s3 = resource('s3')
     bucket = s3.Bucket('u-of-buffalo')
     file_list = [file.key for file in bucket.objects.all()]
+    schema = StructType([
+        StructField('user_id', LongType()),
+        StructField('session_id', LongType()),
+        StructField('task_id', LongType()),
+        StructField('digraph_time', LongType()),
+        StructField('key_pair', StringType()),
+    ])
+    # create empty dataframe to hold everything, minimize s3 writingg
+    whole_data_df = spark.createDataFrame(sc.emptyRDD(), schema)
+
     for file_name in file_list:
+        _start_loop = time.time()
     # iterate over these files and make into schema. TODO: check for bottleneck
+        _start_s3_read = time.time()
         df = spark.read.option("delimiter", " ").csv("s3a://u-of-buffalo/{}".format(file_name))
+        _finish_s3_read = time.time()
         # get info from file name
         user_id, session_id, task_id = split_file_name(file_name)
-
+        _start_transform_block = time.time()
         # set column names
         df_named = df.withColumnRenamed('_c0','key_name')   \
             .withColumnRenamed('_c1', 'key_action')     \
@@ -53,8 +70,6 @@ def main():
             .withColumn("user_id", lit(user_id))        \
             .withColumn("session_id", lit(session_id))  \
             .withColumn("task_id", lit(task_id))
-
-        # df_named = csv_to_schema(df, file_name)
 
         df_typed = df_named.withColumn("action_time", df_named["action_time"].cast(LongType())) # number is too big! must be LongType instead of IntegerType
 
@@ -67,11 +82,27 @@ def main():
         key_prs = timed.withColumn("key_pair", (concat_ws('_', timed["key_name"], lag(timed["key_name"], 1).over(winder))))
         # now drop the columns we dont need
         model_data = key_prs.select("user_id", "session_id", "task_id", "digraph_time", "key_pair")
+        _finish_transform_block = time.time()
+        whole_data_df = whole_data_df.union(model_data)
 
-        try:
-            model_data.write.csv("s3a://user-keystroke-models/first_data", mode='append')
-        except Py4JJavaError as e:
-            print('Encountered the (not terribly helpful) Py4JJavaError. Could not successfully connect to S3 bucket for user {}, session {}.\nError message:\n{}\n'.format(user_id, session_id, e))
+        _finish_loop = time.time()
+
+    _start_s3_write = time.time()
+    try:
+        whole_data_df.write.csv("s3a://user-keystroke-models/second_data", mode='append')
+    except Py4JJavaError as e:
+        print('Encountered the (not terribly helpful) Py4JJavaError. Could not successfully connect to S3 bucket for user {}, session {}.\nError message:\n{}\n'.format(user_id, session_id, e))
+    _finish_s3_write = time.time()
+
+    logstring = QTS.make_time_string([
+        ('loopt time', _start_loop, _finish_loop),
+        ('S3 read time', _start_s3_read, _finish_s3_read),
+        ('transform block time', _start_transform_block, _finish_transform_block),
+        ('final S3 write time', _start_s3_write, _finish_s3_write)
+    ])
+
+    conf = sc._conf.getAll()
+    QTS.write_time_log(logstring, 'raw_data', conf)
 
 
 if __name__=="__main__":

@@ -26,7 +26,7 @@ def lines_from_stream(kafka_stream):
     lines = kafka_stream.map(lambda x: x[1])
     return lines
 
-if __name__ == "__main__":
+def main():
     sparkContext = SparkContext(appName = 'evaluateModels')
     sparkContext.setLogLevel('ERROR')
     sparkStreamingContext = StreamingContext(sparkContext, 3)
