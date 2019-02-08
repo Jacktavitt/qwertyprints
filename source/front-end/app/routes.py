@@ -31,7 +31,16 @@ def worker(user):
 @app.route('/<int:user>/auth')
 def authentication(user):
     consumer = KafkaConsumer('user{}_sess{}'.format(user,user), bootstrap_servers=bs)
-    return Response(kafkastream(consumer), mimetype='text/xml')
+    # return Response(kafkastream(consumer), mimetype='text/xml')
+    for msg in consumer:
+        yield('''<html>
+    <head>
+        <title>Am I Authenticating</title>
+    </head>
+    <body>
+        <h1>Message is: ''' + msg.value.decode() + '''</h1>
+    </body>
+</html>msg.value)''')
 
 
 def kafkastream(consumer):
