@@ -29,4 +29,4 @@ def worker(user):
 
     consumer = KafkaConsumer('user{}_sess{}'.format(user,user), bootstrap_servers=bs)
 
-    return consumer
+    return str([msg.value for msg in consumer])
