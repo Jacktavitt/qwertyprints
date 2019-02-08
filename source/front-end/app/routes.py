@@ -32,7 +32,7 @@ def worker(user):
     return str([msg.value for msg in consumer])
 
 @app.route('/<int:user>/auth', methods = ['POST'])
-def worker(user):
+def auther(user):
     # read json + reply
 
     data = request.get_json()
