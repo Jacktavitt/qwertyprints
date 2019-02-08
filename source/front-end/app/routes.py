@@ -31,7 +31,7 @@ def worker(user):
 @app.route('/<int:user>/auth')
 def authentication(user):
     consumer = KafkaConsumer('user{}_sess{}'.format(user,user), bootstrap_servers=bs)
-    return Response(kafkastream(consumer), mimetype='multipart/x-mixed-replace; boundary=frame')
+    return Response(kafkastream(consumer), mimetype='text/xml')
 
 
 def kafkastream(consumer):
