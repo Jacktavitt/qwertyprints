@@ -73,15 +73,17 @@ for user in all_users:
     _start_train = time.time()
     bst = lgb.train(param, train_data, num_round)
     _finish_train = time.time()
+    # user_model = bst.dump_model()
+    save_model = {}
     user_model = bst.dump_model()
-
+    save_model['model'] = user_model
     # this will allow us to easily look up the model in MongoDB
-    user_model['_id'] = user
-    user_model['test_label'] = test_label.tolist()
+    save_model['_id'] = user
+    save_model['test_label'] = test_label.tolist()
 
     item = s3.Object("user-ml-models", "{}.json".format(user))
     _start_model_save = time.time()
-    put_result = item.put(Body=json.dumps(user_model))
+    put_result = item.put(Body=json.dumps(save_model))
     _finish_model_save = time.time()
 
     put_result['user_id'] = user
