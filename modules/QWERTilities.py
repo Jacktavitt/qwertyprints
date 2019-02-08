@@ -14,7 +14,8 @@ def make_time_string(times_labeled):
 def write_time_log(times_string, logname, conf=None):
     fn = '{}_timelog.txt'.format(logname)
     with open(fn, 'a+') as lf:
+        lf.write("================================================================")
         lf.write(times_string)
         if conf:
-            lf.write(conf)
+            lf.write(str(conf))
     
