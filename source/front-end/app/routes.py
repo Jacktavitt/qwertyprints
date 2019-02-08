@@ -41,8 +41,8 @@ def authentication(user):
             color='green'
         else:
             color='red'
-    render_template('auth_result.html', bgcolor=color)
-    return color
+    return render_template('auth_result.html', bgcolor=color)
+
     # return Response(kafkastream(), mimetype='text/xml')
 
 
