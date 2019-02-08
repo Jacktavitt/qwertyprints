@@ -14,3 +14,8 @@ to run:
 spark-submit --master spark://54.68.199.253:7077 --executor-memory 5G --driver-memory 5G --name easy_bake_oven source/ml-hosting/simple_connections.py
 
 evaluate_models:
+
+
+kafka listener/producer:
+bin/kafka-console-producer.sh --broker-list 10.0.0.12:9092 --topic sample_testclear 
+bin/kafka-console-consumer.sh --bootstrap-server 10.0.0.7:9092 --from-beginning --topic sample_testclear

@@ -6,7 +6,7 @@ import numpy as np
 from sklearn import metrics
 import boto3
 from pprint import pprint
-from pyspark.sql import Row, SparkSession
+from pyspark.sql import Row, SparkSession, Window
 from pyspark import SparkContext
 from pyspark.streaming import StreamingContext
 from pyspark.streaming.kafka import KafkaUtils
@@ -14,7 +14,7 @@ from pyspark.sql import SQLContext
 from kafka import KafkaProducer
 from pyspark.sql.types import *
 from pyspark.sql.functions import split, trim
-import DataSculpting 
+import DataSculpting as DSG
 
 def getSparkSessionInstance(sparkConf):
     if ('sparkSessionSingletonInstance' not in globals()):
@@ -54,25 +54,29 @@ def main():
             spit = split(rdf['value'],',')
             cdf = rdf.withColumn('user_id', spit.getItem(0)) \
                     .withColumn('session_id', spit.getItem(1)) \
-                    .withColumn('key', spit.getItem(2)) \
-                    .withColumn('duration', spit.getItem(4)) \
+                    .withColumn('key_name', spit.getItem(2)) \
+                    .withColumn('action_time', spit.getItem(4)) \
                     .drop('value')
-            tcdf = cdf.withColumn('duration', trim(cdf['duration']))
-            typdf = tcdf.withColumn('duration', tcdf['duration'].cast(LongType())) \
+            tcdf = cdf.withColumn('action_time', trim(cdf['action_time']))
+            typdf = tcdf.withColumn('action_time', tcdf['action_time'].cast(LongType())) \
                     .withColumn('user_id', tcdf['user_id'].cast(LongType()))
 
+            by_one_window = Window.partitionBy("user_id").orderBy("action_time")
+
             users = typdf.select('user_id').distinct().rdd.flatMap(lambda x: x).collect()
+            users.remove(None)
             for user in users:
                 temp = typdf.filter(typdf['user_id']==user)
+                key_prs = DSG.window_over_values(by_one_window, temp)
+
                 # temp.show()
                 # TODO: EVALUATE THIS! THURSDAY!
                 s3_obj = s3.Object(bucket_name, "{}.json".format(user))
-                user_model = json.loads(s3_obj.get()['Body'].read())
+                user_model = json.loads(s3_obj.get()['Body'].read().decode())
                 # here we do the pivot into usedul feature matrix 
-                pivoted = temp.groupBy("user_id", "session_id") \
+                pivoted = key_prs.groupBy("user_id", "session_id") \
                         .pivot("key_pair") \
                         .avg("digraph_time")
-                # make it into pandas
                 # TODO: duplicate code with make_models.py
                 feature_df = pivoted.toPandas()
 
@@ -81,7 +85,6 @@ def main():
                 bst = lgb.Booster()
                 bst.model_from_string(json.dumps(user_model))
                 ypred = bst.predict(the_data_matrix)
-                # if it passes, send result
                 auc = metrics.roc_auc_score(user_model['train_label'], ypred)
                 if auc > 50:
                     print('user TRUE')

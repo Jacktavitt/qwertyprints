@@ -15,7 +15,7 @@ window.setInterval(function() {
 }, 10000);
 
 document.onkeypress = function(e) {
-    var timestamp = Date.now();
+    var timestamp = Date.now()%10000000;
     var stroke = {
         k: e.key,
         t: timestamp
