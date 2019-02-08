@@ -30,3 +30,16 @@ def worker(user):
     consumer = KafkaConsumer('user{}_sess{}'.format(user,user), bootstrap_servers=bs)
 
     return str([msg.value for msg in consumer])
+
+@app.route('/<int:user>/auth', methods = ['POST'])
+def worker(user):
+    # read json + reply
+
+    data = request.get_json()
+    if data:
+        consumer = KafkaConsumer('user{}_sess{}'.format(user,user), bootstrap_servers=bs)
+        message = str([msg.value for msg in consumer])
+    else:
+        message = "False"
+
+    return message
