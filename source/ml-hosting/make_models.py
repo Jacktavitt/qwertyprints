@@ -77,7 +77,7 @@ for user in all_users:
 
     # this will allow us to easily look up the model in MongoDB
     user_model['_id'] = user
-    user_model['test_label'] = test_label
+    user_model['test_label'] = test_label.tolist()
 
     item = s3.Object("user-ml-models", "{}.json".format(user))
     _start_model_save = time.time()
