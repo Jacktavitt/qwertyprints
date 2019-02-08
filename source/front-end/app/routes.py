@@ -26,20 +26,17 @@ def worker(user):
         PRODUCER.send('user_input', bytes(message, 'utf-8'))
     else:
         message = "False"
-
-    consumer = KafkaConsumer('user{}_sess{}'.format(user,user), bootstrap_servers=bs)
-
     return message
 
 @app.route('/<int:user>/auth', methods = ['POST'])
 def auther(user):
     # read json + reply
+    # message = ''
+    # data = request.get_json()
+    # if data:
+    consumer = KafkaConsumer('user{}_sess{}'.format(user,user), bootstrap_servers=bs)
+    #     message = ''.join([mes.value for mes in consumer])
+    # else:
+    #     message = "False"
 
-    data = request.get_json()
-    if data:
-        consumer = KafkaConsumer('user{}_sess{}'.format(user,user), bootstrap_servers=bs)
-        message = str([msg.value for msg in consumer])
-    else:
-        message = "False"
-
-    return message
+    return str([message.value for message in consumer])
