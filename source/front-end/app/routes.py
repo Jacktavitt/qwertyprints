@@ -41,7 +41,7 @@ def kafkastream(consumer):
         <title>QWERTYprints</title>
     </head>
     <body>
-    <!-- <body bgcolor=''' + msg.value + '''
-        <h1>Message is: ''' + msg.value + '''</h1>
+    <!-- <body bgcolor=''' + msg.value.decode() + '''
+        <h1>Message is: ''' + msg.value.decode() + '''</h1>
     </body>
 </html>msg.value)''')
