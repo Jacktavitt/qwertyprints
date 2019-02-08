@@ -13,3 +13,4 @@ source/ml-hosting/simple_connections.py:
 to run:
 spark-submit --master spark://54.68.199.253:7077 --executor-memory 5G --driver-memory 5G --name easy_bake_oven source/ml-hosting/simple_connections.py
 
+evaluate_models:

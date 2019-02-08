@@ -89,6 +89,11 @@ def main():
 
         _finish_loop = time.time()
         _start_s3_write = time.time()
+        # ===================================================================
+        # TODO: instead of writing these mamma jammas (takes forever), stick them all in a list!
+        # when users are done, do both (append all dfs together and make models)
+        # and (for n in dflist write n)
+        # ===================================================================
         try:
             model_data.write.csv("s3a://user-keystroke-models/second_data", mode='append')
         except Exception as e:

@@ -34,8 +34,9 @@ def main():
     sparkStreamingContext = StreamingContext(sparkContext, 3)
     spark = getSparkSessionInstance(sparkContext.getConf())
 
-    boto_client = boto3.client('s3')
-    bucket = 'user-ml-models'
+    s3 = boto3.resource('s3')
+    # boto_client = boto3.client('s3')
+    bucket_name = 'user-ml-models'
 
     kafkaStream = KafkaUtils.createDirectStream(sparkStreamingContext,
             ['user_input'],
@@ -59,18 +60,14 @@ def main():
             tcdf = cdf.withColumn('duration', trim(cdf['duration']))
             typdf = tcdf.withColumn('duration', tcdf['duration'].cast(LongType())) \
                     .withColumn('user_id', tcdf['user_id'].cast(LongType()))
-            # typdf.printSchema()
-            # typdf.show(5)
-            # split it by user id
+
             users = typdf.select('user_id').distinct().rdd.flatMap(lambda x: x).collect()
             for user in users:
                 temp = typdf.filter(typdf['user_id']==user)
                 # temp.show()
                 # TODO: EVALUATE THIS! THURSDAY!
-                model_file = "{}.json".format(str(user).zfill(3))
-                loaded_json = boto_client.get_object(Bucket=bucket, Key=model_file)
-                loaded_model = loaded_json["Body"].read().decode()
-
+                s3_obj = s3.Object(bucket_name, "{}.json".format(user))
+                user_model = json.loads(s3_obj.get()['Body'].read())
                 # here we do the pivot into usedul feature matrix 
                 pivoted = temp.groupBy("user_id", "session_id") \
                         .pivot("key_pair") \
@@ -78,25 +75,19 @@ def main():
                 # make it into pandas
                 # TODO: duplicate code with make_models.py
                 feature_df = pivoted.toPandas()
-                feature_df_users = feature_df.drop(
-                        ['user_id', 'session_id', 'task_id'],
-                        axis=1)
-                column_names = list(feature_df_users.columns)
 
-                # temp_df = feature_df[feature_df['session_id'].isin(isin_range)]
-                    # the_label = np.array((temp_df['user_id'] == user).values, dtype=int)
                 the_data_matrix = feature_df.drop(['user_id', 'session_id'], axis=1).as_matrix()
                 # load and evaluate the model with lgbm
-                bst = lgb.Booster(model_file='model.txt')
+                bst = lgb.Booster()
+                bst.model_from_string(json.dumps(user_model))
                 ypred = bst.predict(the_data_matrix)
                 # if it passes, send result
-                auc = metrics.roc_auc_score(loaded_model['train_label'], ypred)
+                auc = metrics.roc_auc_score(user_model['train_label'], ypred)
                 if auc > 50:
                     print('user TRUE')
                 else:
                     print('user FALSE')
 
-               
         except Exception as e:
             print(e)
 

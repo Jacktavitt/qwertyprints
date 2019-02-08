@@ -1,6 +1,7 @@
 import pyspark
 import json
 import time
+import boto3
 from boto3 import resource
 import numpy as np
 from pyspark.sql import SparkSession
@@ -21,7 +22,7 @@ param = {'num_leaves': 31, 'num_trees': 200, 'objective': 'binary',
 num_round = 100
 
 s3 = resource('s3')
-bucket = s3.Bucket('user-ml-models')
+# bucket = s3.Bucket('user-ml-models')
 
 spark = SparkSession.builder.getOrCreate()
 
@@ -49,6 +50,8 @@ all_users = whole_df \
         .map(lambda r: r[0]) \
         .collect()
 # all_users = np.arange(1, 76)
+models_put = []
+
 for user in all_users:
     _start_user = time.time()
     column_names = list(feature_df_users.columns)
@@ -78,9 +81,11 @@ for user in all_users:
 
     item = s3.Object("user-ml-models", "{}.json".format(user))
     _start_model_save = time.time()
-    item.put(user_model)
+    put_result = item.put(Body=json.dumps(user_model))
     _finish_model_save = time.time()
 
+    put_result['user_id'] = user
+    models_put.append(put_result)
     # submit_id = collection.insert_one(user_model).inserted_id
     print("insterted user {}'s model".format(user))
 
@@ -91,7 +96,7 @@ ts = QTS.make_time_string([
     ('training time', _start_train,_finish_train ),
     ('model save time', _start_model_save, _finish_model_save)
 ])
-QTS.write_time_log(ts, 'make_models')
+QTS.write_time_log(ts, 'make_models', models_put)
 
 print("done.\n")
 
