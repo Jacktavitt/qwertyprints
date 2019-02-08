@@ -29,7 +29,7 @@ def worker(user):
 
     consumer = KafkaConsumer('user{}_sess{}'.format(user,user), bootstrap_servers=bs)
 
-    return str([msg.value for msg in consumer])
+    return message
 
 @app.route('/<int:user>/auth', methods = ['POST'])
 def auther(user):
