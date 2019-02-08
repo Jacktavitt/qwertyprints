@@ -32,11 +32,12 @@ def worker(user):
 def auther(user):
     # read json + reply
     # message = ''
-    # data = request.get_json()
+    data = request.get_json()
     # if data:
     consumer = KafkaConsumer('user{}_sess{}'.format(user,user), bootstrap_servers=bs)
+    msg = consumer.poll()
     #     message = ''.join([mes.value for mes in consumer])
     # else:
     #     message = "False"
 
-    return str([message.value for message in consumer])
+    return str(msg)
