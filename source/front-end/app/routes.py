@@ -28,16 +28,13 @@ def worker(user):
         message = "False"
     return message
 
-@app.route('/<int:user>/auth', methods = ['POST'])
-def auther(user):
-    # read json + reply
-    # message = ''
-    data = request.get_json()
-    # if data:
+@app.route('/<int:user>/auth')
+def authentication(user):
     consumer = KafkaConsumer('user{}_sess{}'.format(user,user), bootstrap_servers=bs)
-    msg = consumer.poll()
-    #     message = ''.join([mes.value for mes in consumer])
-    # else:
-    #     message = "False"
+    return render_template('auth_result.html', bgcolor = kafkastream(consumer))
 
     return str(msg)
+
+def kafkastream(consumer):
+    for msg in consumer:
+        yield(msg.value)
