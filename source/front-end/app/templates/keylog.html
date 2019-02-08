@@ -36,15 +36,15 @@ function doWork() {
 }
 
 
-function getReply() {
-    var xhr = new XMLHttpRequest();
-    var poststr = user+'/auth'
-    xhr.open("POST", poststr, true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.send(JSON.stringify({
-        value: user 
-    }));
-}
+// function getReply() {
+//     var xhr = new XMLHttpRequest();
+//     var poststr = user+'/auth'
+//     xhr.open("POST", poststr, true);
+//     xhr.setRequestHeader('Content-Type', 'application/json');
+//     xhr.send(JSON.stringify({
+//         value: user 
+//     }));
+// }
 
 function setuser(){
     user = document.getElementById("userInput").value;
