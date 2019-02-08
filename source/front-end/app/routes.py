@@ -31,17 +31,16 @@ def worker(user):
 @app.route('/<int:user>/auth')
 def authentication(user):
     consumer = KafkaConsumer('user{}_sess{}'.format(user,user), bootstrap_servers=bs)
-    return Response(kafkastream(consumer))
+    return Response(kafkastream(consumer), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 def kafkastream(consumer):
     for msg in consumer:
         yield('''<html>
     <head>
-        <title>QWERTYprints</title>
+        <title>Am I Authenticating</title>
     </head>
     <body>
-    <!-- <body bgcolor=''' + msg.value.decode() + '''
         <h1>Message is: ''' + msg.value.decode() + '''</h1>
     </body>
 </html>msg.value)''')
