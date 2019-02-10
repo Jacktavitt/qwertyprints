@@ -25,7 +25,7 @@ def complete(user):
     data = request.get_json()
     value = "Incomplete"
     if data:
-        with open('{}_start_data.txt'.format(user)) as us:
+        with open('{}_start_data.txt'.format(user), 'w+') as us:
             us.write(json.dumps(data))
         value = 'Complete'
 
