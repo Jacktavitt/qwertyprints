@@ -20,7 +20,7 @@ def home():
 def initiate():
     return render_template('newuser.html')
 
-@app.route('<user>/new_user', methods = ['POST'])
+@app.route('/<user>/new_user', methods = ['POST'])
 def complete(user):
     data = request.get_json()
     value = "Incomplete"
