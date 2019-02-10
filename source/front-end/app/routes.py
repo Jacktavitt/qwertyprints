@@ -16,8 +16,22 @@ def home():
 # serve index template
     return render_template('keylog.html')
 
+@app.route('/new_user')
+def initiate():
+    return render_template('newuser.html')
 
-@app.route('/<int:user>/receiver', methods = ['POST'])
+@app.route('<user>/new_user', methods = ['POST'])
+def complete(user):
+    data = request.get_json()
+    value = "Incomplete"
+    if data:
+        with open('{}_start_data.txt'.format(user)) as us:
+            us.write(json.dumps(data))
+        value = 'Complete'
+
+    return value
+
+@app.route('/<user>/receiver', methods = ['POST'])
 def worker(user):
     # read json + reply
 
@@ -29,7 +43,7 @@ def worker(user):
         message = "False"
     return message
 
-@app.route('/<int:user>/auth')
+@app.route('/<user>/auth')
 def authentication(user):
     # consumer = KafkaConsumer('user{}_sess{}'.format(user,user), bootstrap_servers=bs)
     consumer = SimpleConsumer(CLIENT, 'testing', 'user{}_sess{}'.format(user,user))
