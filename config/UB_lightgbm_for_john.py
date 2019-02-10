@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 import json
 
-get_ipython().run_line_magic('matplotlib', 'inline')
+# get_ipython().run_line_magic('matplotlib', 'inline')
 import matplotlib.pyplot as plt
 import seaborn as sns
 plt.style.use('Cole.mplstyle')

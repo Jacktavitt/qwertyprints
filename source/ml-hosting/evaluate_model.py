@@ -73,23 +73,22 @@ def main():
                         .pivot("key_pair") \
                         .avg("digraph_time")
                 feature_df = pivoted.toPandas()
-                s3_obj = s3.Object(bucket_name, "{}.json".format(user))
+                s3_obj = s3.Object(bucket_name, "{}_pack.json".format(user))
                 user_model = json.loads(s3_obj.get()['Body'].read().decode())
-                # here we do the pivot into usedul feature matrix 
-                # test_label = user_model.pop('test_label', None)
-                # =================================================================================
-                # sadly, LightGBM is buggy and does not open trained models properly.
-                # The models can be loaded and served properly, so once a fix is foind for the model
-                # loading, thi will be fully functional.
-                # in the mean time, i return randomly true or false
-                # =================================================================================
-                # the_data_matrix = feature_df.drop(['user_id', 'session_id'], axis=1).as_matrix()
-                # # load and evaluate the model with lgbm
-                # bst.model_from_string(json.dumps(user_model))
-                # ypred = bst.predict(the_data_matrix)
-                # auc = metrics.roc_auc_score(user_model['train_label'], ypred)
+                # test_label = np.array(user_model['test_label'])
+
+                the_data_matrix = feature_df.drop(['user_id', 'session_id'], axis=1).as_matrix()
+
+                text_model = user_model['model']
+                with open('temp.txt', 'w+') as fw:
+                    fw.write(text_model)
+                bst = lgb.Booster(model_file='temp.txt')
+                # now evaluate
+                ypred = bst.predict(the_data_matrix)
+                # auc = metrics.roc_auc_score(test_label, ypred)
                 # result = auc > 50
-                result = random.randint(0,101) %2 ==0
+                result = ypred
+                print("user: {} result: {}".format(user, result))
                 for sess in sessions:
                     PRODUCER.send('user{}_sess{}'.format(user, sess), bytes(str(result), 'utf-8'))
         except Exception as e:
