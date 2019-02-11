@@ -12,16 +12,16 @@ import random, json
 
 @app.route('/')
 def home():
-    consumer = SimpleConsumer(CLIENT, 'testing', 'user{}_sess{}'.format(user,user))
-    msg = consumer.get_message()
-    color='yellow'
-    if msg:
-        if msg.message.value.decode() == 'True':
-            color='green'
-        else:
-            color='red'
-    return render_template('keylog.html', bgcolor=color)
-    # return render_template('keylog.html')
+    # consumer = SimpleConsumer(CLIENT, 'testing', 'user{}_sess{}'.format(user,user))
+    # msg = consumer.get_message()
+    # color='yellow'
+    # if msg:
+    #     if msg.message.value.decode() == 'True':
+    #         color='green'
+    #     else:
+    #         color='red'
+    # return render_template('keylog.html', bgcolor=color)
+    return render_template('keylog.html')
 
 @app.route('/new_user')
 def initiate():
