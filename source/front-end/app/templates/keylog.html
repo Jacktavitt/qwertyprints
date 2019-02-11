@@ -10,10 +10,10 @@ window.onload = function() {
     }
 }
 
-window.setInterval(function() {
-    doWork();
-    // getReply();
-}, 10000);
+// window.setInterval(function() {
+//     // doWork();
+//     // getReply();
+// }, 10000);
 
 document.onkeypress = function(e) {
     var timestamp = Date.now()%10000000;
@@ -33,6 +33,7 @@ function doWork() {
         value: buffer 
     }));
     buffer = [];
+    location.reload();
 }
 
 
@@ -48,6 +49,7 @@ function doWork() {
 
 function setuser(){
     user = document.getElementById("userInput").value;
+    window.location.assign('/' + user + '/');
     document.getElementById("workarea").style.display = "block";
     document.getElementById("directions").style.display = "none";
 }
@@ -58,7 +60,7 @@ function setuser(){
     <head>
         <title>QWERTYprints</title>
     </head>
-    <body>
+    <body bgcolor={{bgcolor}} >
         <h1 id="directions">Please enter user number and press button to begin.</h1>
         <p>change user number at any time to validate another user</p>
         <form id="userform" onsubmit="return false;">
@@ -84,6 +86,7 @@ function setuser(){
                 developed at NeXT is at the heart of Apple's current renaissance. And Laurene and I have a wonderful
                 family together.</p>
             <textarea id="texas" rows="10" cols="60"></textarea>
+            <input type="button" id="authenticate" onclick="doWork();" />
         </div>
     </body>
 </html>

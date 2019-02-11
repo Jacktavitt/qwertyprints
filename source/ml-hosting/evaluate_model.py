@@ -15,6 +15,22 @@ from pyspark.sql.types import *
 from pyspark.sql.functions import split, trim
 import DataSculpting as DSG
 
+def translate_prediction_value(ypred):
+    '''
+    predicted values form lightGBM are not calibrated. These parameters come from Scott Cole (DS fellow)
+    and his investigations into this keystroke dataset.
+    '''
+    old_pred_samp_valid = np.array([1.89497064e-05, 1.50911086e-03, 3.38746918e-03, 6.98252100e-03,
+       1.51188199e-02, 3.30878871e-02, 7.00502972e-02, 1.52832984e-01,
+       3.32861811e-01, 9.37748610e-01, 1.00000000e+00])
+    new_pred_samp_valid = np.array([0.06924164, 0.92424242, 0.9047619 , 0.94186047, 0.97142857,
+       0.98305085, 0.99342105, 0.9875    , 1.        , 0.99816244,
+       1.        ])
+    valid_thresh = 0.07012
+    calib_pred = np.interp(ypred,
+                            old_pred_samp_valid, new_pred_samp_valid)
+    return calib_pred > valid_thresh
+
 def getSparkSessionInstance(sparkConf):
     if ('sparkSessionSingletonInstance' not in globals()):
         globals()['sparkSessionSingletonInstance'] = SparkSession \
@@ -73,7 +89,7 @@ def main():
                         .pivot("key_pair") \
                         .avg("digraph_time")
                 feature_df = pivoted.toPandas()
-                s3_obj = s3.Object(bucket_name, "{}_pack.json".format(user))
+                s3_obj = s3.Object(bucket_name, "{}.json".format(user))
                 user_model = json.loads(s3_obj.get()['Body'].read().decode())
                 # test_label = np.array(user_model['test_label'])
 
@@ -85,9 +101,7 @@ def main():
                 bst = lgb.Booster(model_file='temp.txt')
                 # now evaluate
                 ypred = bst.predict(the_data_matrix)
-                # auc = metrics.roc_auc_score(test_label, ypred)
-                # result = auc > 50
-                result = ypred
+                result = translate_prediction_value(ypred)
                 print("user: {} result: {}".format(user, result))
                 for sess in sessions:
                     PRODUCER.send('user{}_sess{}'.format(user, sess), bytes(str(result), 'utf-8'))

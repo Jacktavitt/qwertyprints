@@ -10,11 +10,18 @@ from app import app
 from flask import Flask, render_template, request, redirect, Response
 import random, json
 
-# app = Flask(__name__)
 @app.route('/')
 def home():
-# serve index template
-    return render_template('keylog.html')
+    consumer = SimpleConsumer(CLIENT, 'testing', 'user{}_sess{}'.format(user,user))
+    msg = consumer.get_message()
+    color='yellow'
+    if msg:
+        if msg.message.value.decode() == 'True':
+            color='green'
+        else:
+            color='red'
+    return render_template('keylog.html', bgcolor=color)
+    # return render_template('keylog.html')
 
 @app.route('/new_user')
 def initiate():
@@ -33,8 +40,6 @@ def complete(user):
 
 @app.route('/<user>/receiver', methods = ['POST'])
 def worker(user):
-    # read json + reply
-
     data = request.get_json()
     if data:
         message = '|'.join([f"{user},{user},{dig['k']},{dig['t']}" for dig in data['value']]).replace(' ','Space')
@@ -45,9 +50,7 @@ def worker(user):
 
 @app.route('/<user>/auth')
 def authentication(user):
-    # consumer = KafkaConsumer('user{}_sess{}'.format(user,user), bootstrap_servers=bs)
     consumer = SimpleConsumer(CLIENT, 'testing', 'user{}_sess{}'.format(user,user))
-    # res = consumer.poll(timeout_ms=6000)
     msg = consumer.get_message()
     color='yellow'
     if msg:
@@ -56,17 +59,3 @@ def authentication(user):
         else:
             color='red'
     return render_template('auth_result.html', bgcolor=color)
-
-    # return Response(kafkastream(), mimetype='text/xml')
-
-
-# def kafkastream(consumer):
-#     for msg in consumer:
-#         yield('''<html>
-#     <head>
-#         <title>Am I Authenticating</title>
-#     </head>
-#     <body>
-#         <h1>Message is: ''' + msg.value.decode() + '''</h1>
-#     </body>
-# </html>msg.value)''')
