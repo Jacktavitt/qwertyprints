@@ -1,10 +1,11 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
 <script type="text/javascript">
 var buffer = [];
-var urlstring = window.location.href;
-var url = new URL(urlstring);
-var user = url.searchParams.get('user');
-
+// var urlstring = window.location.href;
+// var url = new URL(urlstring);
+// var user = url.searchParams.get('user');
+var urlparts = window.location.href.split('/');
+var user = urlparts[urlparts.length -1];
 
 // window.onload = function() {
 //     if (!user) {

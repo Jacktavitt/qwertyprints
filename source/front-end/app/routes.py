@@ -14,7 +14,7 @@ import random, json
 def home():
     return render_template('setuser.html')
 
-@app.route('/?user=<user>')
+@app.route('/<user>')
 def serve_user(user):
     consumer = SimpleConsumer(CLIENT, 'testing', 'user{}_sess{}'.format(user,user))
     msg = consumer.get_message()
