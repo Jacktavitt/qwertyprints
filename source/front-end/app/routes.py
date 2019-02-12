@@ -45,7 +45,7 @@ def complete(user):
 def worker(user):
     data = request.get_json()
     if data:
-        message = '|'.join([f"{user},{user},{dig['k']},{dig['t']}" for dig in data['value']]).replace(' ','Space')
+        message = '|'.join([f"{user},{user},{dig['k'].upper()},{dig['t']}" for dig in data['value']]).replace(' ','Space')
         PRODUCER.send('user_input', bytes(message, 'utf-8'))
     else:
         message = "False"

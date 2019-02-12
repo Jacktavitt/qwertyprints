@@ -12,7 +12,7 @@ from pyspark.streaming import StreamingContext
 from pyspark.streaming.kafka import KafkaUtils
 from kafka import KafkaProducer
 from pyspark.sql.types import *
-from pyspark.sql.functions import split, trim
+from pyspark.sql.functions import split, trim, lag, concat, concat_ws
 import DataSculpting as DSG
 
 def translate_prediction_value(ypred):
@@ -76,14 +76,18 @@ def main():
             typdf = tcdf.withColumn('action_time', tcdf['action_time'].cast(LongType())) \
                     .withColumn('user_id', tcdf['user_id'].cast(LongType()))
 
-            by_one_window = Window.partitionBy("user_id").orderBy("action_time")
+            winder = Window.partitionBy("user_id").orderBy("action_time")
 
             users = typdf.select('user_id').distinct().rdd.flatMap(lambda x: x).collect()
             # users.remove(None)
             for user in users:
                 temp = typdf.filter(typdf['user_id']==user)
                 sessions = temp.select('session_id').distinct().rdd.flatMap(lambda x: x).collect()
-                key_prs = DSG.window_over_values(by_one_window, temp)
+                timed = temp.withColumn("digraph_time", (temp["action_time"] - lag(temp["action_time"], 1).over(winder)))
+                key_prs = timed.withColumn("key_pair", (concat_ws('_', timed["key_name"], lag(timed["key_name"], 1).over(winder))))
+                # key_prs = DSG.window_over_values(by_one_window, temp)
+
+
                 model_data = key_prs.select("user_id", "session_id", "digraph_time", "key_pair")
                 pivoted = model_data.groupBy("user_id", "session_id") \
                         .pivot("key_pair") \
