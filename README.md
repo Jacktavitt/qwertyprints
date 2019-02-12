@@ -7,7 +7,7 @@ https://bit.ly/2UJrNFK
 
 ### Architecture
 
-(arch image)
+![Alt text](QWERTYprints_presentation_archi.png?raw=true "Project Architecture")
 
 ### Datatsets
 

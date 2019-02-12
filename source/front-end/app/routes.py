@@ -16,6 +16,8 @@ import random, json
 def home():
     return render_template('setuser.html')
 
+
+
 @app.route('/<user>')
 def serve_user(user):
     consumer = SimpleConsumer(CLIENT, 'testing', 'user{}_sess{}'.format(user,user))
@@ -26,10 +28,11 @@ def serve_user(user):
             color='green'
         else:
             color='red'
-        init_time = int(msg.message.value.decode().lower().strip('truefals'))
-        now_time = time.time()
-        duration = now_time - init_time
-        print("received message, user input at {}, response received at {}, {} seconds lag".format(init_time, now_time, duration))
+        if len(msg.message.value.decode()) > 5:
+            init_time = int(msg.message.value.decode().lower().strip('truefals'))
+            now_time = time.time()
+            duration = now_time - init_time
+            print("received message, user input at {}, response received at {}, {} seconds lag".format(init_time, now_time, duration))
     return render_template('keylog.html', bgcolor=color)
 
 @app.route('/new_user')
