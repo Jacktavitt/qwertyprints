@@ -94,8 +94,10 @@ def main():
                         .avg("digraph_time")
                 feature_df = pivoted.toPandas()
                 s3_obj = s3.Object(bucket_name, "{}.json".format(user))
-                user_model = json.loads(s3_obj.get()['Body'].read().decode())
-                # test_label = np.array(user_model['test_label'])
+                try:
+                    user_model = json.loads(s3_obj.get()['Body'].read().decode())
+                except Exception as e:
+                    print(e)
 
                 the_data_matrix = feature_df.drop(['user_id', 'session_id'], axis=1).as_matrix()
 
