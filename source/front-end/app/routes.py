@@ -1,6 +1,8 @@
 
 from kafka import KafkaProducer, KafkaConsumer
 from kafka import KafkaClient, SimpleConsumer
+import time
+
 bs = ['54.218.73.149:9092','50.112.197.74:9092','34.222.135.111:9092']
 PRODUCER = KafkaProducer(bootstrap_servers=bs)
 CLIENT = KafkaClient(bs)
@@ -27,7 +29,7 @@ def serve_user(user):
         init_time = int(msg.message.value.decode()[4:])
         now_time = time.time()
         duration = now_time - init_time
-        print("received message, user input at {}, response received at {}, {} seconds lag".format(init_time, now_time, duration)
+        print("received message, user input at {}, response received at {}, {} seconds lag".format(init_time, now_time, duration))
     return render_template('keylog.html', bgcolor=color)
 
 @app.route('/new_user')
