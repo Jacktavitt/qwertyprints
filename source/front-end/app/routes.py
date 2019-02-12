@@ -26,7 +26,7 @@ def serve_user(user):
             color='green'
         else:
             color='red'
-        init_time = int(msg.message.value.decode().strip('truefals'))
+        init_time = int(msg.message.value.decode().lower.strip('truefals'))
         now_time = time.time()
         duration = now_time - init_time
         print("received message, user input at {}, response received at {}, {} seconds lag".format(init_time, now_time, duration))
