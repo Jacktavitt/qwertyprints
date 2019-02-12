@@ -7,6 +7,9 @@ spark-submit --master spark://54.68.199.253:7077 --executor-memory 5G --driver-m
 make_models:
 spark-submit --master spark://54.68.199.253:7077 --executor-memory 5G --driver-memory 5G --name make_models source/ml-hosting/make_models.py
 
+make_1_model:
+spark-submit --master spark://54.68.199.253:7077 --executor-memory 5G --driver-memory 5G --name make_1_model source/ml-hosting/make_1_model.py -u 76
+
 
 source/ml-hosting/simple_connections.py:
     grabs schema'd files from S3, pivots into wide, sparse table, converts to Pandas DF, adn runs LightGBM.
