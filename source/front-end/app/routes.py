@@ -18,6 +18,7 @@ def home():
 def serve_user(user):
     consumer = SimpleConsumer(CLIENT, 'testing', 'user{}_sess{}'.format(user,user))
     msg = consumer.get_message()
+    print("received message")
     color='yellow'
     if msg:
         if msg.message.value.decode() == 'True':
@@ -30,16 +31,16 @@ def serve_user(user):
 def initiate():
     return render_template('newuser.html')
 
-@app.route('/<user>/new_user', methods = ['POST'])
-def complete(user):
-    data = request.get_json()
-    value = "Incomplete"
-    if data:
-        with open('{}_start_data.txt'.format(user), 'w+') as us:
-            us.write(json.dumps(data))
-        value = 'Complete'
+# @app.route('/<user>/new_user', methods = ['POST'])
+# def complete(user):
+#     data = request.get_json()
+#     value = "Incomplete"
+#     if data:
+#         with open('{}_start_data.txt'.format(user), 'w+') as us:
+#             us.write(json.dumps(data))
+#         value = 'Complete'
 
-    return value
+#     return value
 
 @app.route('/<user>/receiver', methods = ['POST'])
 def worker(user):
@@ -51,14 +52,14 @@ def worker(user):
         message = "False"
     return message
 
-@app.route('/<user>/auth')
-def authentication(user):
-    consumer = SimpleConsumer(CLIENT, 'testing', 'user{}_sess{}'.format(user,user))
-    msg = consumer.get_message()
-    color='yellow'
-    if msg:
-        if msg.message.value.decode() == 'True':
-            color='green'
-        else:
-            color='red'
-    return render_template('auth_result.html', bgcolor=color)
+# @app.route('/<user>/auth')
+# def authentication(user):
+#     consumer = SimpleConsumer(CLIENT, 'testing', 'user{}_sess{}'.format(user,user))
+#     msg = consumer.get_message()
+#     color='yellow'
+#     if msg:
+#         if msg.message.value.decode() == 'True':
+#             color='green'
+#         else:
+#             color='red'
+#     return render_template('auth_result.html', bgcolor=color)
