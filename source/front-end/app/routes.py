@@ -18,13 +18,16 @@ def home():
 def serve_user(user):
     consumer = SimpleConsumer(CLIENT, 'testing', 'user{}_sess{}'.format(user,user))
     msg = consumer.get_message()
-    print("received message")
     color='yellow'
     if msg:
-        if msg.message.value.decode() == 'True':
+        if msg.message.value.decode()[:4] == 'True':
             color='green'
         else:
             color='red'
+        init_time = int(msg.message.value.decode()[4:])
+        now_time = time.time()
+        duration = now_time - init_time
+        print("received message, user input at {}, response received at {}, {} seconds lag".format(init_time, now_time, duration)
     return render_template('keylog.html', bgcolor=color)
 
 @app.route('/new_user')
