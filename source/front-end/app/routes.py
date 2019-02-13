@@ -17,7 +17,6 @@ def home():
     return render_template('setuser.html')
 
 
-
 @app.route('/<user>')
 def serve_user(user):
     consumer = SimpleConsumer(CLIENT, 'testing', 'user{}_sess{}'.format(user,user))
