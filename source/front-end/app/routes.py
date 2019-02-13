@@ -31,10 +31,10 @@ def serve_user(user):
     if msg:
         print("received message: {}".format(msg.message.value.decode()))
         # if msg.message.value.decode()[:4] == 'True':
-        # if msg.message.value.decode() =='True':
-        #     color='green'
-        # else:
-        #     color='red'
+        if msg.message.value.decode() =='True':
+            color='green'
+        else:
+            color='red'
         # if len(msg.message.value.decode()) > 5:
         #     init_time = int(msg.message.value.decode().lower().strip('truefals'))
         #     now_time = time.time()

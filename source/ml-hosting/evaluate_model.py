@@ -30,7 +30,8 @@ def translate_prediction_value(ypred):
     valid_thresh = 0.07012
     calib_pred = np.interp(ypred,
                             old_pred_samp_valid, new_pred_samp_valid)
-    return calib_pred > valid_thresh
+    # return calib_pred > valid_thresh
+    return calib_pred
 
 def getSparkSessionInstance(sparkConf):
     if ('sparkSessionSingletonInstance' not in globals()):
@@ -108,10 +109,11 @@ def main():
                 bst = lgb.Booster(model_file='temp.txt')
                 # now evaluate
                 ypred = bst.predict(the_data_matrix)
+                calib_pred = translate_prediction_value(ypred[0])
                 # result = "{}{}".format(str(translate_prediction_value(ypred))[:4], time.time())
-                result = "{}".format(translate_prediction_value(ypred[0]))
-                print("user: {} result: {}".format(user, result))
-                # for sess in sessions:
+                result = "{}".format(calib_pred > 0.1)
+                print("user: {} ypred: {} result: {}".format(user, ypred[0], result))
+                # for sess in sessions: 
                 PRODUCER.send('user{}_sess{}'.format(user, user), bytes(str(result), 'utf-8'))
 
         except Exception as e:
