@@ -29,7 +29,8 @@ def serve_user(user):
     msg = consumer.get_message()
     color='yellow'
     if msg:
-        if msg.message.value.decode()[:4] == 'True':
+        # if msg.message.value.decode()[:4] == 'True':
+        if msg.message.value.decode() =='True':
             color='green'
         else:
             color='red'
@@ -61,6 +62,7 @@ def worker(user):
     if data:
         message = '|'.join([f"{user},{user},{dig['k'].upper()},{dig['t']}" for dig in data['value']]).replace(' ','Space')
         PRODUCER.send('user_input', bytes(message, 'utf-8'))
+        print("sent message of len {} to user_input".format(len(message)))
     else:
         message = "False"
     return message
