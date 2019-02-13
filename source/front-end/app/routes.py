@@ -29,7 +29,7 @@ def serve_user(user):
     msg = consumer.get_message()
     color='yellow'
     if msg:
-        print("received message: {}"msg.message.value.decode())
+        print("received message: {}".format(msg.message.value.decode()))
         # if msg.message.value.decode()[:4] == 'True':
         # if msg.message.value.decode() =='True':
         #     color='green'
