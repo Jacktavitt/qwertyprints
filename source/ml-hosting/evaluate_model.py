@@ -112,7 +112,7 @@ def main():
                 calib_pred = translate_prediction_value(ypred[0])
                 # result = "{}{}".format(str(translate_prediction_value(ypred))[:4], time.time())
                 result = "{}".format(calib_pred > 0.1)
-                print("user: {} ypred: {} result: {}".format(user, ypred[0], result))
+                print("user: {} ypred: {} calib_pred: {} result: {}".format(user, ypred[0], calib_pred, result))
                 # for sess in sessions: 
                 PRODUCER.send('user{}_sess{}'.format(user, user), bytes(str(result), 'utf-8'))
 
