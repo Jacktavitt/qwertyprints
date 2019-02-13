@@ -60,10 +60,12 @@ def initiate():
 def worker(user):
     data = request.get_json()
     if data:
+        print("got data from post")
         message = '|'.join([f"{user},{user},{dig['k'].upper()},{dig['t']}" for dig in data['value']]).replace(' ','Space')
         PRODUCER.send('user_input', bytes(message, 'utf-8'))
         print("sent message of len {} to user_input".format(len(message)))
     else:
+        print("didn't get data")
         message = "False"
     return message
 
