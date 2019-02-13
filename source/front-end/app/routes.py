@@ -26,7 +26,7 @@ def serve_user(user):
     #     if not mes:
     #         break
     #     msg = mes
-    msg = consumer.get_message()
+    msg = consumer.get_message(timeout=5)
     color='yellow'
     if msg:
         print("received message: {}".format(msg.message.value.decode()))
