@@ -29,16 +29,17 @@ def serve_user(user):
     msg = consumer.get_message()
     color='yellow'
     if msg:
+        print("received message: {}"msg.message.value.decode())
         # if msg.message.value.decode()[:4] == 'True':
-        if msg.message.value.decode() =='True':
-            color='green'
-        else:
-            color='red'
-        if len(msg.message.value.decode()) > 5:
-            init_time = int(msg.message.value.decode().lower().strip('truefals'))
-            now_time = time.time()
-            duration = now_time - init_time
-            print("received message, user input at {}, response received at {}, {} seconds lag".format(init_time, now_time, duration))
+        # if msg.message.value.decode() =='True':
+        #     color='green'
+        # else:
+        #     color='red'
+        # if len(msg.message.value.decode()) > 5:
+        #     init_time = int(msg.message.value.decode().lower().strip('truefals'))
+        #     now_time = time.time()
+        #     duration = now_time - init_time
+        #     print("received message, user input at {}, response received at {}, {} seconds lag".format(init_time, now_time, duration))
     return render_template('keylog.html', bgcolor=color)
 
 @app.route('/new_user')
