@@ -109,7 +109,7 @@ def main():
                 # now evaluate
                 ypred = bst.predict(the_data_matrix)
                 # result = "{}{}".format(str(translate_prediction_value(ypred))[:4], time.time())
-                result = "{}".format(translate_prediction_value(ypred))
+                result = "{}".format(translate_prediction_value(ypred[0]))
                 print("user: {} result: {}".format(user, result))
                 # for sess in sessions:
                 PRODUCER.send('user{}_sess{}'.format(user, user), bytes(str(result), 'utf-8'))
