@@ -2,15 +2,19 @@
 from kafka import KafkaProducer, KafkaConsumer
 from kafka import KafkaClient, SimpleConsumer
 import time
+import sys
+from app import app
+from flask import Flask, render_template, request, redirect, Response
+import random, json
+
+SEND_TIME = None
+RECEIVE_TIME = None
 
 bs = ['54.218.73.149:9092','50.112.197.74:9092','34.222.135.111:9092']
 PRODUCER = KafkaProducer(bootstrap_servers=bs)
 CLIENT = KafkaClient(bs)
 
-import sys
-from app import app
-from flask import Flask, render_template, request, redirect, Response
-import random, json
+
 
 @app.route('/')
 def home():
@@ -26,10 +30,11 @@ def serve_user(user):
     #     if not mes:
     #         break
     #     msg = mes
-    msg = consumer.get_message(timeout=5)
+    msg = consumer.get_message(timeout=12)
+    RECEIVE_TIME = time.time()
     color='yellow'
     if msg:
-        print("received message: {}".format(msg.message.value.decode()))
+        print("received message: {} delay: {}".format(msg.message.value.decode(), SEND_TIME-RECEIVE_TIME))
         # if msg.message.value.decode()[:4] == 'True':
         if msg.message.value.decode() =='True':
             color='green'
@@ -64,6 +69,8 @@ def worker(user):
         print("got data from post")
         message = '|'.join([f"{user},{user},{dig['k'].upper()},{dig['t']}" for dig in data['value']]).replace(' ','Space')
         PRODUCER.send('user_input', bytes(message, 'utf-8'))
+        SEND_TIME = time.time()
+
         print("sent message of len {} to user_input".format(len(message)))
     else:
         print("didn't get data")

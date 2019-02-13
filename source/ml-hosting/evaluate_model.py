@@ -63,6 +63,8 @@ def main():
     def model_user_input(rdd):
 
         try:
+            _start_spark = time.time()
+            print(_start_spark)
             spark=getSparkSessionInstance(rdd.context.getConf())
 
              # Convert RDD[String] to RDD[Row] to DataFrame
@@ -112,7 +114,7 @@ def main():
                 calib_pred = translate_prediction_value(ypred[0])
                 # result = "{}{}".format(str(translate_prediction_value(ypred))[:4], time.time())
                 result = "{}".format(calib_pred > 0.5)
-                print("user: {} ypred: {} calib_pred: {} result: {}".format(user, ypred[0], calib_pred, result))
+                print("user: {} ypred: {} calib_pred: {} result: {} delay: {}".format(user, ypred[0], calib_pred, result, (time.time()-_start_spark)))
                 # for sess in sessions: 
                 PRODUCER.send('user{}_sess{}'.format(user, user), bytes(str(result), 'utf-8'))
 
