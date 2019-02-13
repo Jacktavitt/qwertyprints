@@ -20,12 +20,13 @@ def home():
 @app.route('/<user>')
 def serve_user(user):
     consumer = SimpleConsumer(CLIENT, 'testing', 'user{}_sess{}'.format(user,user))
-    msg = None
-    while True:
-        mes = consumer.get_message()
-        if not mes:
-            break
-        msg = mes
+    # msg = None
+    # while True:
+    #     mes = consumer.get_message()
+    #     if not mes:
+    #         break
+    #     msg = mes
+    msg = consumer.get_message()
     color='yellow'
     if msg:
         if msg.message.value.decode()[:4] == 'True':
