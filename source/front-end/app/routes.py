@@ -33,8 +33,11 @@ def serve_user(user):
     msg = consumer.get_message(timeout=12)
     RECEIVE_TIME = time.time()
     color='yellow'
+
+    S_R_LAG = RECEIVE_TIME-SEND_TIME if SEND_TIME else None
+    
     if msg:
-        print("received message: {} delay: {}".format(msg.message.value.decode(), SEND_TIME-RECEIVE_TIME))
+        print("received message: {} delay: {}".format(msg.message.value.decode(), S_R_LAG))
         # if msg.message.value.decode()[:4] == 'True':
         if msg.message.value.decode() =='True':
             color='green'
