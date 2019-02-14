@@ -25,13 +25,14 @@ def home():
 @app.route('/<user>')
 def serve_user(user):
     consumer = SimpleConsumer(CLIENT, 'testing', 'user{}_sess{}'.format(user,user))
-    # msg = None
-    # while True:
-    #     mes = consumer.get_message()
-    #     if not mes:
-    #         break
-    #     msg = mes
-    msg = consumer.get_message(timeout=6)
+    msg = None
+    while True:
+        mes = consumer.get_message()
+        if mes:
+            msg = mes
+            break
+        # msg = mes
+    # msg = consumer.get_message(timeout=6)
     # msg = consumer.get_message()
     RECEIVE_TIME = time.time()
     color='yellow'
