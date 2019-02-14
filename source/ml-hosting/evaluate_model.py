@@ -1,6 +1,7 @@
 
 import json
 import time
+import os
 import lightgbm as lgb
 import pandas as pd
 import numpy as np
@@ -96,18 +97,18 @@ def main():
                         .pivot("key_pair") \
                         .avg("digraph_time")
                 feature_df = pivoted.toPandas()
-                s3_obj = s3.Object(bucket_name, "{}.json".format(user))
-                try:
-                    user_model = json.loads(s3_obj.get()['Body'].read().decode())
-                except Exception as e:
-                    print(e)
-
                 the_data_matrix = feature_df.drop(['user_id', 'session_id'], axis=1).as_matrix()
+                if not os.path.isfile('{}.txt'.format(user)):
+                    s3_obj = s3.Object(bucket_name, "{}.json".format(user))
+                    try:
+                        user_model = json.loads(s3_obj.get()['Body'].read().decode())
+                    except Exception as e:
+                        print(e)
+                    text_model = user_model['model']
+                    with open('{}.txt'.format(user), 'w+') as fw:
+                        fw.write(text_model)
 
-                text_model = user_model['model']
-                with open('temp.txt', 'w+') as fw:
-                    fw.write(text_model)
-                bst = lgb.Booster(model_file='temp.txt')
+                bst = lgb.Booster(model_file='{}.txt'.format(user))
                 # now evaluate
                 ypred = bst.predict(the_data_matrix)
                 calib_pred = translate_prediction_value(ypred[0])
