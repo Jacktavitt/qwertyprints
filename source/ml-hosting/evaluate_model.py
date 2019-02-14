@@ -48,7 +48,7 @@ def lines_from_stream(kafka_stream):
 def main():
     sparkContext = SparkContext(appName = 'evaluateModels')
     sparkContext.setLogLevel('ERROR')
-    sparkStreamingContext = StreamingContext(sparkContext, 3)
+    sparkStreamingContext = StreamingContext(sparkContext, 1)
     spark = getSparkSessionInstance(sparkContext.getConf())
 
     s3 = boto3.resource('s3')
@@ -64,7 +64,6 @@ def main():
 
         try:
             _start_spark = time.time()
-            print(_start_spark)
             spark=getSparkSessionInstance(rdd.context.getConf())
 
              # Convert RDD[String] to RDD[Row] to DataFrame
