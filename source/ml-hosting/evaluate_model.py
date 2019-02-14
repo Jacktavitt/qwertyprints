@@ -49,7 +49,7 @@ def lines_from_stream(kafka_stream):
 def main():
     sparkContext = SparkContext(appName = 'evaluateModels')
     sparkContext.setLogLevel('ERROR')
-    sparkStreamingContext = StreamingContext(sparkContext, 1)
+    sparkStreamingContext = StreamingContext(sparkContext, 3)
     spark = getSparkSessionInstance(sparkContext.getConf())
 
     s3 = boto3.resource('s3')
@@ -114,9 +114,9 @@ def main():
                 calib_pred = translate_prediction_value(ypred[0])
                 # result = "{}{}".format(str(translate_prediction_value(ypred))[:4], time.time())
                 result = "{}".format(calib_pred > 0.5)
-                print("user: {} ypred: {} calib_pred: {} result: {} delay: {}".format(user, ypred[0], calib_pred, result, (time.time()-_start_spark)))
                 # for sess in sessions: 
                 PRODUCER.send('user{}_sess{}'.format(user, user), bytes(str(result), 'utf-8'))
+                print("user: {} ypred: {} calib_pred: {} result: {} delay: {}".format(user, ypred[0], calib_pred, result, (time.time()-_start_spark)))
 
         except Exception as e:
             print(e)
