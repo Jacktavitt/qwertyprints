@@ -31,8 +31,8 @@ def serve_user(user):
     #     if not mes:
     #         break
     #     msg = mes
-    # msg = consumer.get_message(timeout=12)
-    msg = consumer.get_message()
+    msg = consumer.get_message(timeout=6)
+    # msg = consumer.get_message()
     RECEIVE_TIME = time.time()
     color='yellow'
 
