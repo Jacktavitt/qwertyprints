@@ -27,7 +27,7 @@ def serve_user(user):
     consumer = SimpleConsumer(CLIENT, 'testing', 'user{}_sess{}'.format(user,user))
     msg = None
     while True:
-        mes = consumer.get_message()
+        mes = consumer.get_message(timeout=1)
         if mes:
             msg = mes
             break
