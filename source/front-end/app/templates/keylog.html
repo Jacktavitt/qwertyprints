@@ -4,6 +4,7 @@ var buffer = [];
 var urlparts = window.location.href.split('/');
 var user = urlparts[urlparts.length -1];
 
+setTimeout(function() { window.location.reload(); }, 9000);
 
 document.onkeypress = function(e) {
     var timestamp = Date.now()%10000000;
@@ -16,7 +17,6 @@ document.onkeypress = function(e) {
 
 function doWork() {
     sendKeystrokes();
-    window.location.reload();
 }
 
 function sendKeystrokes() {
@@ -29,7 +29,7 @@ function sendKeystrokes() {
     }));
     buffer = [];
     // window.location.reload();
-    // setTimeout(function() { window.location.reload(); }, 5000);
+    //
 }
 
 </script>
