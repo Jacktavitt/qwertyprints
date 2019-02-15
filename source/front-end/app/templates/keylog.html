@@ -1,22 +1,9 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
 <script type="text/javascript">
 var buffer = [];
-// var urlstring = window.location.href;
-// var url = new URL(urlstring);
-// var user = url.searchParams.get('user');
 var urlparts = window.location.href.split('/');
 var user = urlparts[urlparts.length -1];
 
-// window.onload = function() {
-//     if (!user) {
-//         document.getElementById("workarea").style.display = "none";
-//     }
-// }
-
-// window.setInterval(function() {
-//     // doWork();
-//     // getReply();
-// }, 10000);
 
 document.onkeypress = function(e) {
     var timestamp = Date.now()%10000000;
@@ -36,26 +23,8 @@ function doWork() {
         value: buffer 
     }));
     buffer = [];
-    window.location.reload();
+    // window.location.reload();
 }
-
-
-// function getReply() {
-//     var xhr = new XMLHttpRequest();
-//     var poststr = user+'/auth'
-//     xhr.open("POST", poststr, true);
-//     xhr.setRequestHeader('Content-Type', 'application/json');
-//     xhr.send(JSON.stringify({
-//         value: user 
-//     }));
-// }
-
-// function setuser(){
-//     user = document.getElementById("userInput").value;
-//     window.location.assign('/' + user + '/');
-//     document.getElementById("workarea").style.display = "block";
-//     document.getElementById("directions").style.display = "none";
-// }
 
 </script>
 
