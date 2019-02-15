@@ -126,7 +126,7 @@ def main():
                 # for sess in sessions: 
                 _MODEL_TIME = time.time() - _MODEL_START
                 PRODUCER.send('user{}_sess{}'.format(user, user), bytes(str(result), 'utf-8'))
-                print("user: {} ypred: {} calib_pred: {} result: {} delay: {}".format(user, ypred[0], calib_pred, result, (time.time()-_start_spark)))
+                print("user: {} ypred: {} calib_pred: {} result: {} delay: {}".format(user, ypred[0], calib_pred, result, (time.time()-_SPARK_START)))
                 print("\n_INPUT_CHOP_TIME: {}\_USERCHOP_TIME: {}\n\_USERPANDA_TIME: {}\n_FILEIO_TIME: {}\n_MODEL_TIME: {}\n" \
                         .format(_INPUT_CHOP_TIME, _USERCHOP_TIME,_USERPANDA_TIME, _FILEIO_TIME, _MODEL_TIME))
 
