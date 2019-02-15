@@ -4,7 +4,7 @@ var buffer = [];
 var urlparts = window.location.href.split('/');
 var user = urlparts[urlparts.length -1];
 
-setTimeout(function() { window.location.reload(); }, 9000);
+setTimeout(function() { window.location.reload(); }, 000);
 
 document.onkeypress = function(e) {
     var timestamp = Date.now()%10000000;
@@ -58,7 +58,8 @@ function sendKeystrokes() {
                 out I could stop taking the required classes that didn't interest me, and begin dropping in on the ones
                 that looked interesting.</p>
             <textarea id="texas" rows="10" cols="60"></textarea>
-            <button type="button" id="authenticate" onclick="doWork();" >ASDFthenticate Me!</button>
+            <button type="button" id="authenticate" onclick="sendKeystrokes();" >ASDFthenticate Me!</button>
+            <button type="button" id="reload" onclick="window.location.reload();" >LKJHGet Result!</button>
         </div>
     </body>
 </html>
