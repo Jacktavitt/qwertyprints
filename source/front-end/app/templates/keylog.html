@@ -21,7 +21,7 @@ function doWork() {
     xhr.setRequestHeader('Content-Type', 'application/json');
     xhr.send(JSON.stringify({
         value: buffer 
-    }));
+    })).then(window.location.reload());
     buffer = [];
     // window.location.reload();
 }
@@ -52,7 +52,7 @@ function doWork() {
                 out I could stop taking the required classes that didn't interest me, and begin dropping in on the ones
                 that looked interesting.</p>
             <textarea id="texas" rows="10" cols="60"></textarea>
-            <button type="button" id="authenticate" onclick="doWork();window.location.reload();" >ASDFthenticate Me!</button>
+            <button type="button" id="authenticate" onclick="doWork();" >ASDFthenticate Me!</button>
         </div>
     </body>
 </html>
