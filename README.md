@@ -38,6 +38,8 @@ The percentage of U.S. adults with a social media account rose from 10% in 2005 
 
 ### SETUP
 Running 4 node Spark cluster (master and 3 workers), 3 node kafka cluster, and a one-node Flask frontend
+
+####CAST (in order of appearance):
 `raw_data.py`:
     does initial processing from S3, and stores back into S3 bucket.
     to run:
@@ -48,10 +50,10 @@ Running 4 node Spark cluster (master and 3 workers), 3 node kafka cluster, and a
     to run:
     ```spark-submit --master spark://<<MASTER NODE IP>> --executor-memory 5G --driver-memory 5G --name make_models source/ml-hosting/make_models.py```
 
-    to make_1_model:
+    to make 1 model:
    ``` spark-submit --master spark://<<MASTER NODE IP>> --executor-memory 5G --driver-memory 5G --name make_1_model source/ml-hosting/make_1_model.py -u 76```
 
-evaluate_models:
+`evaluate_models`:
     get user input from kafka stream, flips it and reverses it into actionable feature matrix
     ```spark-submit --master spark://<<MASTER NODE IP>> --executor-memory 5G --driver-memory 5G --name evaluator source/ml-hosting/evaluate_model.py```
 
