@@ -43,25 +43,32 @@ Running 4 node Spark cluster (master and 3 workers), 3 node kafka cluster, and a
 - `raw_data.py`:
 
     does initial processing from S3, and stores back into S3 bucket.
+
     to run:
+
     `spark-submit --master spark://<<MASTER NODE IP>> --executor-memory 5G --driver-memory 5G --name initial_data_processing source/data-processing/raw_data.py`
 
 - `make_models`:
-    makes models from each file in the s3 bucket
-       - to run:
-        `spark-submit --master spark://<<MASTER NODE IP>> --executor-memory 5G --driver-memory 5G --name make_models source/ml-hosting/make_models.py`
 
-       - to make 1 model:
-        `spark-submit --master spark://<<MASTER NODE IP>> --executor-memory 5G --driver-memory 5G --name make_1_model source/ml-hosting/make_1_model.py -u 76`
+    makes models from each file in the s3 bucket
+
+    to run:
+
+    `spark-submit --master spark://<<MASTER NODE IP>> --executor-memory 5G --driver-memory 5G --name make_models source/ml-hosting/make_models.py`
 
 - `evaluate_models`:
+
     get user input from kafka stream, flips it and reverses it into actionable feature matrix
+
     `spark-submit --master spark://<<MASTER NODE IP>> --executor-memory 5G --driver-memory 5G --name evaluator source/ml-hosting/evaluate_model.py`
 
 
 - kafka listener/producer:
+
     `bin/kafka-console-producer.sh --broker-list <<KAFKA BROKER>>:9092 --topic sample_testclear`
+
     `bin/kafka-console-consumer.sh --bootstrap-server  <<KAFKA BROKER>>:9092 --from-beginning --topic sample_testclear`
 
-pyspark: 
+- pyspark: 
+
     `pyspark --master spark://<<MASTER NODE IP>> --executor-memory 5G --driver-memory 5G --name pyspark_lab`
