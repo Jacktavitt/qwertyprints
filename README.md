@@ -12,8 +12,7 @@ https://bit.ly/2UJrNFK
 ![Alt text](QWERTYprints_presentation_archi.png?raw=true "Project Architecture")
 
 ### Datatsets
-https://cubs.buffalo.edu/research/datasets 
-"University of Buffalo Keystroke Identification data"
+[University of Buffalo Keystroke Identification data](https://cubs.buffalo.edu/research/datasets)
 
 ### Engineering Challenge
 
@@ -28,39 +27,41 @@ The percentage of U.S. adults with a social media account rose from 10% in 2005 
 
 ### Future Improvements
 
- -> Automate a method to record evaluation of the models and version them as they are retrained.
+ - Automate a method to record evaluation of the models and version them as they are retrained.
  
- -> Considerable bottleneck for pivoting the tables and converting them to Pandas dataframes for the ML algorithm. Use Parquet to store the feature matrices directly, and a caching system to keep hold of the loaded data models. Test Spark implementation of LightGBM to see if it interacts more naturally.
+ - Considerable bottleneck for pivoting the tables and converting them to Pandas dataframes for the ML algorithm. Use Parquet to store the feature matrices directly, and a caching system to keep hold of the loaded data models. Test Spark implementation of LightGBM to see if it interacts more naturally.
  
- -> Kafka has a node API. The front end could be simplified into JavaScript and use the kafka producers/consumers available to provide a more natural user experience and simplify the code
+ - Kafka has a node API. The front end could be simplified into JavaScript and use the kafka producers/consumers available to provide a more natural user experience and simplify the code
  
- -> While the Spark Streaming is interesting, the sizes of use input data are small enough that a node with a fast GPU sould be able to serve the ML models in a more efficient way. This would simplify the code and give the data scientist more control over the implementation of the algorithm.
+ - While the Spark Streaming is interesting, the sizes of use input data are small enough that a node with a fast GPU sould be able to serve the ML models in a more efficient way. This would simplify the code and give the data scientist more control over the implementation of the algorithm.
 
 ### SETUP
 Running 4 node Spark cluster (master and 3 workers), 3 node kafka cluster, and a one-node Flask frontend
 
-####CAST (in order of appearance):
-`raw_data.py`:
+#### CAST (in order of appearance):
+
+- `raw_data.py`:
+
     does initial processing from S3, and stores back into S3 bucket.
     to run:
-    ```spark-submit --master spark://<<MASTER NODE IP>> --executor-memory 5G --driver-memory 5G --name initial_data_processing source/data-processing/raw_data.py```
+    `spark-submit --master spark://<<MASTER NODE IP>> --executor-memory 5G --driver-memory 5G --name initial_data_processing source/data-processing/raw_data.py`
 
-`make_models`:
+- `make_models`:
     makes models from each file in the s3 bucket
-    to run:
-    ```spark-submit --master spark://<<MASTER NODE IP>> --executor-memory 5G --driver-memory 5G --name make_models source/ml-hosting/make_models.py```
+       - to run:
+        `spark-submit --master spark://<<MASTER NODE IP>> --executor-memory 5G --driver-memory 5G --name make_models source/ml-hosting/make_models.py`
 
-    to make 1 model:
-   ``` spark-submit --master spark://<<MASTER NODE IP>> --executor-memory 5G --driver-memory 5G --name make_1_model source/ml-hosting/make_1_model.py -u 76```
+       - to make 1 model:
+        `spark-submit --master spark://<<MASTER NODE IP>> --executor-memory 5G --driver-memory 5G --name make_1_model source/ml-hosting/make_1_model.py -u 76`
 
-`evaluate_models`:
+- `evaluate_models`:
     get user input from kafka stream, flips it and reverses it into actionable feature matrix
-    ```spark-submit --master spark://<<MASTER NODE IP>> --executor-memory 5G --driver-memory 5G --name evaluator source/ml-hosting/evaluate_model.py```
+    `spark-submit --master spark://<<MASTER NODE IP>> --executor-memory 5G --driver-memory 5G --name evaluator source/ml-hosting/evaluate_model.py`
 
 
-kafka listener/producer:
-    `bin/kafka-console-producer.sh --broker-list <<KAFKA BROKER>>:9092 --topic sample_testclear `
-   ` bin/kafka-console-consumer.sh --bootstrap-server  <<KAFKA BROKER>>:9092 --from-beginning --topic sample_testclear`
+- kafka listener/producer:
+    `bin/kafka-console-producer.sh --broker-list <<KAFKA BROKER>>:9092 --topic sample_testclear`
+    `bin/kafka-console-consumer.sh --bootstrap-server  <<KAFKA BROKER>>:9092 --from-beginning --topic sample_testclear`
 
 pyspark: 
     `pyspark --master spark://<<MASTER NODE IP>> --executor-memory 5G --driver-memory 5G --name pyspark_lab`
