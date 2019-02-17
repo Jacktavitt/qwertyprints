@@ -8,14 +8,21 @@ import numpy as np
 from sklearn import metrics
 import boto3
 import random
-from pyspark.sql import Row, SparkSession, Window
+from pyspark.sql import Row
+from pyspark.sql import SparkSession
+from pyspark.sql import  Window
 from pyspark import SparkContext
 from pyspark.streaming import StreamingContext
 from pyspark.streaming.kafka import KafkaUtils
 from kafka import KafkaProducer
 from pyspark.sql.types import *
-from pyspark.sql.functions import split, trim, lag, concat, concat_ws
+from pyspark.sql.functions import split
+from pyspark.sql.functions import trim
+from pyspark.sql.functions import lag
+from pyspark.sql.functions import concat
+from pyspark.sql.functions import concat_ws
 import DataSculpting as DSG
+
 
 def translate_prediction_value(ypred):
     '''
@@ -31,10 +38,12 @@ def translate_prediction_value(ypred):
     valid_thresh = 0.07012
     calib_pred = np.interp(ypred,
                             old_pred_samp_valid, new_pred_samp_valid)
-    # return calib_pred > valid_thresh
     return calib_pred
 
 def getSparkSessionInstance(sparkConf):
+    '''
+    get a good spark instance, or the one that is already running.
+    '''
     if ('sparkSessionSingletonInstance' not in globals()):
         globals()['sparkSessionSingletonInstance'] = SparkSession \
             .builder \
@@ -43,6 +52,9 @@ def getSparkSessionInstance(sparkConf):
     return globals()['sparkSessionSingletonInstance']
 
 def lines_from_stream(kafka_stream):
+    '''
+    get the relevant value from the kafka dstream
+    '''
     lines = kafka_stream.map(lambda x: x[1])
     return lines
 
@@ -53,7 +65,6 @@ def main():
     spark = getSparkSessionInstance(sparkContext.getConf())
 
     s3 = boto3.resource('s3')
-    # boto_client = boto3.client('s3')
     bucket_name = 'user-ml-models'
     PRODUCER = KafkaProducer(bootstrap_servers=['54.218.73.149:9092','50.112.197.74:9092','34.222.135.111:9092'])
     _STREAM_START = time.time()
@@ -63,7 +74,10 @@ def main():
     keys = lines_from_stream(kafkaStream)
 
     def model_user_input(rdd):
-
+        '''
+        split input into rows, convert to a dataframe. Run a window over it to crate digraph info for key pairs.
+        pivot this into a feature matrix for each user that has come in, and load the proper model and evaluate.
+        '''
         try:
             _SPARK_START = time.time()
             spark=getSparkSessionInstance(rdd.context.getConf())
@@ -86,16 +100,14 @@ def main():
             users = typdf.select('user_id').distinct().rdd.flatMap(lambda x: x).collect()
             _INPUT_CHOP_TIME = time.time() - _INPUT_CHOP_START
             _USER_LOOP_START = time.time()
-            # users.remove(None)
             for user in users:
+                # go through and transform user input into a feature matrix like we used to train the models
+                # one for each user since this is a party line and data from multiple users come in
                 _USERCHOP_START = time.time()
                 temp = typdf.filter(typdf['user_id']==user)
                 sessions = temp.select('session_id').distinct().rdd.flatMap(lambda x: x).collect()
                 timed = temp.withColumn("digraph_time", (temp["action_time"] - lag(temp["action_time"], 1).over(winder)))
                 key_prs = timed.withColumn("key_pair", (concat_ws('_', timed["key_name"], lag(timed["key_name"], 1).over(winder))))
-                # key_prs = DSG.window_over_values(by_one_window, temp)
-
-
                 model_data = key_prs.select("user_id", "session_id", "digraph_time", "key_pair")
                 pivoted = model_data.groupBy("user_id", "session_id") \
                         .pivot("key_pair") \
@@ -106,6 +118,11 @@ def main():
                 _USERPANDA_TIME = time.time() - _USERPANDA_START
                 the_data_matrix = feature_df.drop(['user_id', 'session_id'], axis=1).as_matrix()
                 _FILEIO_START = time.time()
+                # since this implementation of gradient boosting needs to open a file to load a model,
+                # we must grab it from s3, save it, and load it again. So streamlined!
+                # Might be able to make it work with the spark-specific LightGBM.
+                # check to see if the file is already saved to the cluster master.
+                # if it is, open it. if not, do the dumb stuff above.
                 if not os.path.isfile('{}.txt'.format(user)):
                     s3_obj = s3.Object(bucket_name, "{}.json".format(user))
                     try:
@@ -121,7 +138,6 @@ def main():
                 # now evaluate
                 ypred = bst.predict(the_data_matrix)
                 calib_pred = translate_prediction_value(ypred[0])
-                # result = "{}{}".format(str(translate_prediction_value(ypred))[:4], time.time())
                 result = "{}".format(calib_pred > 0.5)
                 # for sess in sessions: 
                 _MODEL_TIME = time.time() - _MODEL_START
