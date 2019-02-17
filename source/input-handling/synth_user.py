@@ -14,6 +14,7 @@ def main(filename, PRODUCER):
     '''
     pretends to be a user typing, based on raw data from the university of buffalo. Sends over
     a Kafka topic 'synth_user'
+    used for testing the spark streaming.
     '''
     with open(filename) as f:
         info = f.read()

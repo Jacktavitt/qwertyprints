@@ -9,7 +9,7 @@ __pycache__
 *.pdf
 *.jpg
 *.jpeg
-
+**/data
 *.idea
 *.secrets
 *.ini
